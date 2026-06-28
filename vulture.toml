@@ -1,0 +1,13 @@
+[vulture]
+exclude = [
+    "venv/*",
+    "__pycache__/*",
+    "build/*",
+    "dist/*",
+    "migrations/*",
+    "tests/*",
+    "backend/database/migrate.py",
+]
+ignore_names = ["_", "logger", "cfg", "settings"]
+min_confidence = 80
+sort_by_size = true

@@ -1,0 +1,5 @@
+[pyupgrade]
+keep_runtime_typing = true
+py39_plus = true
+py310_plus = true
+py311_plus = true
