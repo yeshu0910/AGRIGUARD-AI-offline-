@@ -1,0 +1,92 @@
+# AgriGuard AI GitLab CI Pipeline
+# Designed for GitLab.com or self-managed GitLab with shared runners.
+
+stages:
+  - lint
+  - type-check
+  - security
+  - test
+  - build
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  UVICORN_HOST: "127.0.0.1"
+  UVICORN_PORT: "8000"
+
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+
+before_script:
+  - python -m venv venv
+  - source venv/bin/activate
+  - pip install --upgrade pip
+  - pip install -r requirements-dev.txt
+
+lint:
+  stage: lint
+  image: python:3.12-slim
+  script:
+    - ruff check backend/ tests/
+    - black --check backend/ tests/
+  allow_failure: false
+  artifacts:
+    paths:
+      - Ruff and Black output (file or stdout)
+
+type-check:
+  stage: type-check
+  image: python:3.12-slim
+  script:
+    - mypy backend/ --ignore-missing-imports
+  allow_failure: false
+
+security:
+  stage: security
+  image: python:3.12-slim
+  script:
+    - pip install bandit
+    - bandit -qr backend/ -f gitlab -o bandit-report.json || true
+    - pip install pip-audit
+    - pip-audit -r requirements.txt -f json -o pip-audit-report.json || true
+  allow_failure: false
+  artifacts:
+    paths:
+      - bandit-report.json
+      - pip-audit-report.json
+    reports:
+      dependency_scanning: pip-audit-report.json
+      sast: bandit-report.json
+
+test:
+  stage: test
+  image: python:3.12-slim
+  script:
+    - pytest backend/tests/ tests/integration/ -v --cov=backend --cov-report=xml
+  coverage: '/TOTAL\s+\d+\%\s+\d+/'
+  artifacts:
+    paths:
+      - coverage.xml
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+
+build:
+  stage: build
+  image: docker:24-dind
+  services:
+    - docker:24-dind
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    - docker info
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA -t $CI_REGISTRY_IMAGE:latest .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE:latest
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
