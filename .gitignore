@@ -1,13 +1,18 @@
 # Python
 venv/
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
 *.pyd
+*.so
 .Python
 env/
 .env
 .venv
+*.egg-info/
+dist/
+build/
+.eggs/
 
 # Node
 node_modules/
@@ -16,11 +21,27 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Build outputs
-build/
-dist/
-*.egg-info/
-.eggs/
+# Build artifacts
+*.tflite
+*.h5
+*.onnx
+*.gguf
+*.bin
+
+# Dataset
+dataset/
+PlantVillage/
+Data/
+data/
+
+# Models output directory
+AgriGuard/models/
+models/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
 
 # IDE
 .vscode/
@@ -31,16 +52,7 @@ dist/
 # OS
 .DS_Store
 Thumbs.db
-
-# Database
-*.db
-*.sqlite
-*.sqlite3
-
-# Models (large binary files - do not commit)
-models/*.tflite
-models/*.gguf
-models/*.bin
+Desktop.ini
 
 # Frontend build
 frontend/build/
