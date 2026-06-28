@@ -7,7 +7,7 @@ name = "agriguard-ai"
 version = "0.1.0"
 description = "Offline crop disease logger with local AI inference"
 readme = "README.md"
-license = {text = "MIT"}
+license = {text = "AGPL-3.0-or-later"}
 requires-python = ">=3.10"
 authors = [
     {name = "AgriGuard AI Team", email = "team@example.com"}
@@ -17,7 +17,7 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -56,10 +56,6 @@ include = ["backend*"]
 testpaths = ["backend/tests", "tests"]
 asyncio_mode = "auto"
 
-[tool.ruff]
-line-length = 100
-target-version = "py310"
-
 [tool.black]
 line-length = 100
 target-version = ["py310", "py311", "py312"]
@@ -77,6 +73,8 @@ extra_checks = true
 [tool.ruff]
 line-length = 100
 target-version = "py310"
+
+[tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM"]
 ignore = ["E501"]
 

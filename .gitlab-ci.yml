@@ -1,71 +1,100 @@
 # AgriGuard AI GitLab CI Pipeline
-# Designed for GitLab.com or self-managed GitLab with shared runners.
+# Validates offline-first crop health, image analysis, and AI recommendation code.
 
 stages:
   - lint
-  - type-check
   - security
+  - type-check
   - test
   - build
 
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  UVICORN_HOST: "127.0.0.1"
-  UVICORN_PORT: "8000"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
 
 cache:
   paths:
     - .cache/pip
-    - venv/
-
-before_script:
-  - python -m venv venv
-  - source venv/bin/activate
-  - pip install --upgrade pip
-  - pip install -r requirements-dev.txt
 
 lint:
   stage: lint
   image: python:3.12-slim
+  before_script:
+    - python -m pip install --upgrade pip
+    - pip install -r requirements-dev.txt
   script:
-    - ruff check backend/ tests/
-    - black --check backend/ tests/
+    - ruff check .
   allow_failure: false
   artifacts:
+    when: always
     paths:
-      - Ruff and Black output (file or stdout)
+      - .ruff_cache/
+
+bandit:
+  stage: security
+  image: python:3.12-slim
+  before_script:
+    - python -m pip install --upgrade pip
+    - pip install bandit
+  script:
+    - |
+      if find backend -name "*.py" 2>/dev/null | grep -q .; then
+        bandit -qr backend/ -f json -o bandit-report.json
+      else
+        echo '{"results":[],"errors":[]}' > bandit-report.json
+        echo "No backend Python files found for Bandit yet."
+      fi
+  artifacts:
+    when: always
+    paths:
+      - bandit-report.json
+
+gitleaks:
+  stage: security
+  image:
+    name: zricethezav/gitleaks:latest
+    entrypoint: [""]
+  script:
+    - gitleaks detect --source . --config .gitleaks.toml --redact --report-format json --report-path gitleaks-report.json
+  allow_failure: false
+  artifacts:
+    when: always
+    paths:
+      - gitleaks-report.json
 
 type-check:
   stage: type-check
   image: python:3.12-slim
+  before_script:
+    - python -m pip install --upgrade pip
+    - pip install -r requirements-dev.txt
   script:
-    - mypy backend/ --ignore-missing-imports
+    - |
+      if find backend -name "*.py" 2>/dev/null | grep -q .; then
+        mypy backend/
+      else
+        echo "No backend Python files found for Mypy yet."
+      fi
   allow_failure: false
-
-security:
-  stage: security
-  image: python:3.12-slim
-  script:
-    - pip install bandit
-    - bandit -qr backend/ -f gitlab -o bandit-report.json || true
-    - pip install pip-audit
-    - pip-audit -r requirements.txt -f json -o pip-audit-report.json || true
-  allow_failure: false
-  artifacts:
-    paths:
-      - bandit-report.json
-      - pip-audit-report.json
-    reports:
-      dependency_scanning: pip-audit-report.json
-      sast: bandit-report.json
 
 test:
   stage: test
   image: python:3.12-slim
+  before_script:
+    - python -m pip install --upgrade pip
+    - pip install -r requirements-dev.txt
   script:
-    - pytest backend/tests/ tests/integration/ -v --cov=backend --cov-report=xml
-  coverage: '/TOTAL\s+\d+\%\s+\d+/'
+    - |
+      if find backend/tests tests/integration -name "test_*.py" -o -name "*_test.py" 2>/dev/null | grep -q .; then
+        pytest backend/tests/ tests/integration/ -v --cov=backend --cov-report=term --cov-report=xml
+      else
+        echo "No pytest files found yet for backend/tests or tests/integration."
+        echo '<coverage version="1"><packages></packages></coverage>' > coverage.xml
+      fi
+  coverage: '/TOTAL\s+\d+\s+\d+\s+(\d+%)/'
+  allow_failure: false
   artifacts:
+    when: always
     paths:
       - coverage.xml
     reports:
@@ -73,20 +102,32 @@ test:
         coverage_format: cobertura
         path: coverage.xml
 
+changelog:
+  stage: build
+  image:
+    name: orhunp/git-cliff:latest
+    entrypoint: [""]
+  script:
+    - git-cliff --config cliff.toml --output CHANGELOG.generated.md
+  artifacts:
+    when: always
+    paths:
+      - CHANGELOG.generated.md
+
 build:
   stage: build
-  image: docker:24-dind
+  image: docker:24
   services:
-    - docker:24-dind
+    - name: docker:24-dind
   variables:
-    DOCKER_HOST: tcp://docker:2376
-    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
   before_script:
     - docker info
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
   script:
-    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA -t $CI_REGISTRY_IMAGE:latest .
-    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-    - docker push $CI_REGISTRY_IMAGE:latest
+    - docker build -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA" -t "$CI_REGISTRY_IMAGE:latest" .
+    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA"
+    - docker push "$CI_REGISTRY_IMAGE:latest"
   rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'

@@ -1,55 +1,89 @@
-# Specification Template
+# Feature Specification: [Feature Name]
 
-## Title
-[Short descriptive title]
+## Feature Overview
 
-## Status
-Draft | Proposed | Accepted | Implemented | Deprecated
+Summarize the AgriGuard AI feature and how it helps farmers, agricultural
+experts, crop health monitoring, weather insights, emergency SOS, image
+analysis, or sustainable farming.
 
-## Context
-[Why is this specification needed? What problem does it solve?]
+## Problem Statement
+
+Describe the real agricultural problem, who experiences it, and why an
+offline-first AI recommendation workflow is needed.
 
 ## Goals
-- [Goal 1]
-- [Goal 2]
 
-## Non-Goals
-- [What this spec explicitly will not address]
+- [Goal focused on farmer value]
+- [Goal focused on agricultural expert workflow]
+- [Goal focused on privacy, offline use, or crop health]
 
-## Stakeholders
-| Role | Name | Responsibility |
-|------|------|----------------|
-| Product Owner | | |
-| Tech Lead | | |
-| Reviewer | | |
+## Non Goals
 
-## Requirements
+- [Scope explicitly excluded]
+- [Behavior that should remain unchanged]
 
-### Functional
-- [ ] Requirement 1
-- [ ] Requirement 2
+## Functional Requirements
 
-### Non-Functional
-- Requirement with metric
+- FR-1:
+- FR-2:
+- FR-3:
 
-## Design Decisions
-| Decision | Rationale |
-|----------|-----------|
-| [Decision] | [Why] |
+## Non Functional Requirements
 
-## Open Questions
-- [ ] Question 1
-- [ ] Question 2
+- NFR-1: Offline-first behavior:
+- NFR-2: Security/privacy:
+- NFR-3: Accessibility:
+- NFR-4: Performance:
+- NFR-5: CPU-only/local AI:
 
-## Risks & Mitigations
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| [Risk] | [H/M/L] | [H/M/L] | [Mitigation] |
+## User Stories
 
-## Success Criteria
-- Measurable criterion 1
-- Measurable criterion 2
+- As a farmer, I want ... so that ...
+- As an agricultural expert, I want ... so that ...
+- As an emergency/support user, I want ... so that ...
 
-## References
-- Link 1
-- Link 2
+## Acceptance Criteria
+
+- Given ..., when ..., then ...
+- Given ..., when ..., then ...
+- Given ..., when ..., then ...
+
+## Risks
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| | | |
+
+## Dependencies
+
+- Backend:
+- Frontend:
+- AI/model:
+- Database:
+- Documentation:
+
+## Security Considerations
+
+- Input validation:
+- Secrets handling:
+- Farmer image/location privacy:
+- Offline/runtime network constraints:
+- Abuse or unsafe recommendation risks:
+
+## API Changes
+
+| Method | Path | Request | Response | Notes |
+|--------|------|---------|----------|-------|
+| | | | | |
+
+## Database Changes
+
+Describe SQLite tables, migrations, indexes, and schema compatibility concerns.
+
+## Testing Strategy
+
+- Unit tests:
+- Integration tests:
+- Accessibility tests:
+- Security checks:
+- Offline behavior tests:

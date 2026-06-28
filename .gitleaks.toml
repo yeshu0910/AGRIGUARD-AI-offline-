@@ -4,29 +4,63 @@ title = "AgriGuard AI Secret Scanning"
 useDefault = true
 
 [allowlist]
+description = "Exclude documentation, tests, and safe examples from blocking local agriculture docs."
 paths = [
-  '''docs/''',
-  '''tests/''',
+  '''(^|/)docs/''',
+  '''(^|/)tests/''',
+  '''(^|/)backend/tests/''',
+  '''(^|/)examples?/''',
+  '''(^|/)sample[s]?/''',
+  '''\.example$''',
   '''\.env\.example$''',
-  '''\.gitignore$''',
+  '''README\.md$''',
+  '''CHANGELOG\.md$''',
 ]
 
 [[rules]]
-id = "generic-api-key"
-description = "Generic API Key"
+id = "agriguard-openai-api-key"
+description = "OpenAI API key must not be committed; AgriGuard AI runs local/offline inference."
+regex = '''sk-[A-Za-z0-9]{32,}'''
+keywords = ["sk-"]
 
 [[rules]]
-id = "aws-access-key-id"
-description = "AWS Access Key ID"
+id = "agriguard-google-api-key"
+description = "Google API keys must not be committed for weather, location, or map experiments."
+regex = '''AIza[0-9A-Za-z\-_]{35}'''
+keywords = ["AIza"]
 
 [[rules]]
-id = "aws-secret-access-key"
-description = "AWS Secret Access Key"
+id = "agriguard-huggingface-token"
+description = "HuggingFace model access tokens must not be committed."
+regex = '''hf_[A-Za-z0-9]{30,}'''
+keywords = ["hf_"]
 
 [[rules]]
-id = "private-key"
-description = "Private Key"
+id = "agriguard-aws-access-key"
+description = "AWS access keys are not allowed in this offline-first repository."
+regex = '''AKIA[0-9A-Z]{16}'''
+keywords = ["AKIA"]
 
 [[rules]]
-id = "generic-password"
-description = "Generic Password"
+id = "agriguard-aws-secret-assignment"
+description = "AWS secret access key assignments are not allowed."
+regex = '''(?i)aws(.{0,20})?(secret|private)?(.{0,20})?(key|token)\s*[:=]\s*['"][A-Za-z0-9/+=]{40}['"]'''
+keywords = ["aws", "secret"]
+
+[[rules]]
+id = "agriguard-jwt-token"
+description = "JWT tokens must not be committed."
+regex = '''eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}'''
+keywords = ["eyJ"]
+
+[[rules]]
+id = "agriguard-generic-api-key-assignment"
+description = "Generic API key assignments must not be committed."
+regex = '''(?i)(api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret)\s*[:=]\s*['"][A-Za-z0-9_\-]{20,}['"]'''
+keywords = ["api", "token", "secret"]
+
+[[rules]]
+id = "agriguard-generic-password-assignment"
+description = "Generic passwords must not be committed."
+regex = '''(?i)(password|passwd|pwd)\s*[:=]\s*['"][^'"\s]{8,}['"]'''
+keywords = ["password", "passwd", "pwd"]

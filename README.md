@@ -159,7 +159,7 @@ AgriGuard_AI/
 ├── tests/
 │   └── integration/                 # End-to-end pipeline tests
 ├── .gitignore
-├── LICENSE                          # MIT License
+├── LICENSE                          # GNU AGPLv3 License
 ├── requirements.txt                 # Python deps
 ├── requirements-dev.txt             # Testing deps
 └── pyproject.toml                   # Build system metadata
@@ -243,7 +243,7 @@ npm run build
 
 ## License
 
-MIT License — see [LICENSE](LICENSE) file.
+GNU Affero General Public License v3.0 or later — see [LICENSE](LICENSE).
 
 ## Contact
 
