@@ -1,93 +1,251 @@
-# AGRIGUARD AI
+﻿# AgriGuard AI – Offline Crop Disease Logger
 
+![Hackathon Phase](https://img.shields.io/badge/phase-1-blue)
+![Status](https://img.shields.io/badge/status-phase_1-completed-green)
+![Platform](https://img.shields.io/badge/platform-offline_only-red)
 
+## Project Overview
 
-## Getting started
+**AgriGuard AI** is a fully offline, CPU-first artificial intelligence application designed to detect crop diseases from leaf images without any internet connection. Built for the **Offline Local AI Hackathon**, it empowers small and marginal farmers to diagnose plant health instantly using a smartphone or laptop, regardless of network availability.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+The application combines a TensorFlow Lite classification model running on-device with a local small language model (Phi-3 Mini GGUF via llama.cpp) to generate structured, actionable treatment recommendations. All inference, storage, and reporting happen locally on CPU.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## Problem Statement
 
-## Add your files
+Over 500 million smallholder farmers worldwide lose 20–40% of crop yield annually to pests and diseases. Existing digital agri-advisory services require internet, smartphones with data plans, and cloud subscriptions — barriers that exclude the most vulnerable farming communities. Extension officers and farmers in rural areas often wait days for expert advice, by which time the disease has spread irreversibly.
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+There is an urgent need for an **offline, zero-cost, privacy-preserving** diagnostic tool that runs on commodity hardware.
+
+## Solution
+
+AgriGuard AI provides a complete offline AI pipeline:
+
+1. **Ingest** – Farmer or extension officer captures a leaf photo via the offline web interface.
+2. **Preprocess** – OpenCV normalizes the image (resize, color space, edges).
+3. **Classify** – A quantized TensorFlow Lite model runs on CPU to identify the disease.
+4. **Recommend** – A local LLM (Phi-3 Mini, 4-bit GGUF) generates structured JSON treatment steps.
+5. **Store** – SQLite persists the diagnosis, confidence score, and recommendations locally.
+6. **Report** – A responsive dashboard lists history, trends, and exportable reports.
+
+No data leaves the device. No API keys, no cloud, no network required.
+
+## Features
+
+- 🚫 **100% Offline** – No internet, no cloud APIs, no OpenAI.
+- ⚡ **CPU-Only Inference** – Optimized for Intel/AMD/ARM processors.
+- 📱 **Responsive Web UI** – Works on phones, tablets, and desktops.
+- 🧠 **Local LLM Recommendations** – Phi-3 Mini via llama.cpp gives structured advice.
+- 📊 **SQLite History** – Full audit trail with timestamp, image path, and confidence.
+- 📤 **JSON Export** – Machine-readable reports for integration or printing.
+- 🔒 **Privacy First** – All data stays on-device.
+
+## Architecture Diagram
 
 ```
-cd existing_repo
-git remote add origin https://code.swecha.org/yeshu_09/agriguard-ai.git
-git branch -M main
-git push -uf origin main
+Leaf Image
+    ↓
+OpenCV Preprocessing
+    ↓
+TensorFlow Lite Model
+    ↓
+Phi-3 Mini (llama.cpp)
+    ↓
+JSON Report
+    ↓
+SQLite Storage
+    ↓
+Responsive Dashboard
 ```
 
-## Integrate with your tools
+| Component | Role |
+|---|---|
+| Leaf Image | User-captured photo of affected crop |
+| OpenCV | Resize, normalize, edge enhancement |
+| TensorFlow Lite | On-device disease classification |
+| Phi-3 Mini (llama.cpp) | Local LLM generates structured recommendations |
+| JSON Report | Structured output with confidence & advice |
+| SQLite | Persistent offline storage |
+| Dashboard | Gallery, filters, history, export |
 
-* [Set up project integrations](https://code.swecha.org/yeshu_09/agriguard-ai/-/settings/integrations)
+## Technology Stack
 
-## Collaborate with your team
+| Layer | Technology | Purpose |
+|-------|------------|---------|
+| **Frontend** | HTML5 + Tailwind CSS + Vanilla JS | Responsive offline PWA-capable UI |
+| **Backend / API** | FastAPI (Python) | REST endpoints, CORS, async I/O |
+| **Image Processing** | OpenCV (Python) | Resize, normalize, augment |
+| **Inference Engine** | TensorFlow Lite (Python) | Quantized CPU-only classification |
+| **LLM Runtime** | llama.cpp + Phi-3 Mini GGUF | 4-bit quantized local text generation |
+| **Database** | SQLite3 + SQLAlchemy | Structured schema, full-text search |
+| **Serialization** | Pydantic v2 | JSON schema validation, API contracts |
+| **Packaging** | PyInstaller / Docker | Portable exe / container build |
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+## Folder Structure
 
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+```
+AgriGuard_AI/
+├── backend/
+│   ├── __init__.py
+│   ├── main.py                      # FastAPI app entrypoint
+│   ├── config.py                    # env config, paths
+│   ├── database/
+│   │   ├── __init__.py
+│   │   ├── engine.py                # SQLAlchemy engine + session factory
+│   │   ├── models.py                # SQLAlchemy ORM
+│   │   ├── schemas.py               # Pydantic DTOs
+│   │   ├── crud.py                  # DB helpers
+│   │   └── migrate.py               # Migration runner
+│   ├── routers/
+│   │   ├── __init__.py
+│   │   ├── disease.py               # /api/diagnose endpoint
+│   │   ├── history.py               # /api/history endpoints
+│   │   ├── stats.py                 # /api/stats endpoints
+│   │   └── export.py                # /api/export endpoints
+│   ├── services/
+│   │   ├── __init__.py
+│   │   ├── preprocessor.py          # OpenCV pipeline
+│   │   ├── tflite_inference.py      # TF Lite model wrapper
+│   │   ├── llm_service.py           # llama.cpp wrapper
+│   │   └── report_builder.py        # JSON / PDF assembly
+│   └── tests/
+│       ├── __init__.py
+│       ├── test_preprocessing.py
+│       ├── test_inference.py
+│       ├── test_llm.py
+│       └── test_api.py
+├── frontend/
+│   ├── index.html
+│   ├── tailwind.config.js
+│   ├── postcss.config.js
+│   ├── package.json
+│   ├── src/
+│   │   ├── css/
+│   │   │   └── main.css
+│   │   ├── js/
+│   │   │   ├── app.js
+│   │   │   ├── api.js
+│   │   │   ├── camera.js
+│   │   │   ├── gallery.js
+│   │   │   └── dashboard.js
+│   │   └── assets/
+│   │       ├── icons/
+│   │       └── images/
+│   └── build/                       # Production bundle
+├── models/
+│   ├── crop_disease_model.tflite
+│   ├── labels.txt
+│   └── phi-3-mini-4k-instruct-q4.gguf
+├── database/
+│   ├── agriguard.db                 # SQLite runtime file (gitignored)
+│   └── schema.sql                   # DDL for reference
+├── images/
+│   ├── sample_01.jpg
+│   ├── sample_02.jpg
+│   └── README_images.md             # Attribution / sources
+├── assets/
+│   ├── logo.svg
+│   └── favicon.ico
+├── docs/
+│   ├── README.md
+│   ├── SPECIFICATION_KIT.md
+│   ├── GITLAB_ISSUES.md
+│   ├── WORK_DIVISION_PLAN.md
+│   ├── PROJECT_TIMELINE.md
+│   ├── DELIVERABLES.md
+│   ├── FOLDER_STRUCTURE.md
+│   ├── ARCHITECTURE_DIAGRAM.md
+│   ├── PROJECT_SCOPE.md
+│   └── HACKATHON_ALIGNMENT.md
+├── tests/
+│   └── integration/                 # End-to-end pipeline tests
+├── .gitignore
+├── LICENSE                          # MIT License
+├── requirements.txt                 # Python deps
+├── requirements-dev.txt             # Testing deps
+└── pyproject.toml                   # Build system metadata
+```
 
 ## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+### Prerequisites
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+- Python 3.10+
+- Node.js 18+ (for frontend build)
+- CMake 3.18+ (for llama.cpp build)
+- Git
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+### Quick Start (Development)
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+```bash
+# 1. Clone the repository
+git clone <repository-url>
+cd AgriGuard_AI
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+# 2. Set up Python environment
+python -m venv venv
+venv\\Scripts\\activate   # Linux/Mac: source venv/bin/activate
+pip install -r requirements.txt
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+# 3. Download models (offline copy)
+# Place files in ./models/:
+#   crop_disease_model.tflite
+#   phi-3-mini-4k-instruct-q4.gguf
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+# 4. Initialize SQLite database
+python -c "from backend.database.models import Base, engine; Base.metadata.create_all(bind=engine)"
+
+# 5. Run backend
+uvicorn backend.main:app --reload --port 8000
+
+# 6. Run frontend (in separate terminal)
+cd frontend
+npm install
+npm run dev
+```
+
+### Docker (Recommended)
+
+```bash
+docker compose up --build
+```
+
+### Offline Deployment
+
+```bash
+# Backend as standalone binary
+pyinstaller --onefile --add-data "models:models" backend/main.py
+
+# Frontend as static PWA
+npm run build
+# Serve ./frontend/build/ via any static server
+```
+
+## Future Scope
+
+- **Mobile App** – Native Android/iOS build using Flutter with on-device TFLite + llama.cpp bindings.
+- **Multilingual LLM** – Replace Phi-3 with a multilingual GGUF for regional language recommendations.
+- **Drone / IoT Integration** – Capture images from field cameras for continuous inference.
+- **Community Knowledge Graph** – Local knowledge base with region-specific pest data.
+- **Federated Learning** – Periodic model updates without exchanging raw data.
+- **IoT Edge Device Packaging** – Raspberry Pi 5 appliance for village centers.
+- **SMS Fallback** – USSD / SMS integration for feature-phone users.
+- **Yield Prediction** – Add regression model to estimate financial loss from disease severity.
+
+## Why This Project Fits the Hackathon
+
+| Criterion | How AgriGuard AI Delivers |
+|-----------|---------------------------|
+| **Offline Resilience** | Zero network calls. All models, prompts, and DB are local. |
+| **CPU Efficiency** | TFLite CPU delegate + 4-bit GGUF weights. No GPU required. |
+| **Structured Data Extraction** | Pydantic-enforced JSON schemas for every diagnosis and recommendation. |
+| **Accuracy** | Quantized EfficientNet-MobileNet backbone + LLM post-processing for explainability. |
+| **User Experience** | Responsive PWA, camera-first, dark-mode UI, instant results. |
 
 ## License
-For open source projects, say how it is licensed.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+MIT License — see [LICENSE](LICENSE) file.
+
+## Contact
+
+AgriGuard AI Team — [GitLab Repository](https://code.swecha.org/yeshu_09/agriguard-ai)
+
