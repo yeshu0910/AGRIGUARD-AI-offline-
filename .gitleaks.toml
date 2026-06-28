@@ -1,0 +1,32 @@
+title = "AgriGuard AI Secret Scanning"
+
+[extend]
+useDefault = true
+
+[allowlist]
+paths = [
+  '''docs/''',
+  '''tests/''',
+  '''\.env\.example$''',
+  '''\.gitignore$''',
+]
+
+[[rules]]
+id = "generic-api-key"
+description = "Generic API Key"
+
+[[rules]]
+id = "aws-access-key-id"
+description = "AWS Access Key ID"
+
+[[rules]]
+id = "aws-secret-access-key"
+description = "AWS Secret Access Key"
+
+[[rules]]
+id = "private-key"
+description = "Private Key"
+
+[[rules]]
+id = "generic-password"
+description = "Generic Password"

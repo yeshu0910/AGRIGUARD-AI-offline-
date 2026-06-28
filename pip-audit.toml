@@ -1,0 +1,9 @@
+[pip-audit]
+strict = true
+progress_bar = false
+desc = true
+require_hashes = false
+index_url = "https://pypi.org/simple"
+extra_index_urls = []
+timeout = 15
+fix = false
