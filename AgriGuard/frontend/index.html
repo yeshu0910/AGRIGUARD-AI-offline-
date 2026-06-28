@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgriGuard AI - Crop Disease Detector</title>
+<style>
+  :root {
+    --dark: #1C2B1A;
+    --green: #4A7C59;
+    --green-light: #5f9e6f;
+    --paper: #F0EAD6;
+    --paper-dark: #d9d3b8;
+    --danger: #c0392b;
+    --warning: #d4a017;
+    --safe: #27ae60;
+    --text: #2c3e50;
+    --text-light: #7f8c8d;
+    --radius: 10px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background: var(--paper);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  header {
+    background: var(--dark);
+    color: #fff;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  header h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: 0.3px; }
+  header h1 span { color: var(--green); }
+  header .sub { font-size: 0.8rem; opacity: 0.7; }
+  .tabs {
+    display: flex;
+    background: var(--dark);
+    padding: 0 1.5rem;
+    gap: 0;
+  }
+  .tabs button {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.6);
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: 0.2s;
+    font-family: inherit;
+  }
+  .tabs button:hover { color: #fff; }
+  .tabs button.active { color: #fff; border-bottom-color: var(--green); }
+  .container { max-width: 960px; margin: 0 auto; padding: 1.5rem; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .upload-zone {
+    border: 3px dashed var(--green);
+    border-radius: var(--radius);
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.3s;
+    background: #fff;
+    margin-bottom: 1.5rem;
+  }
+  .upload-zone:hover, .upload-zone.dragover {
+    background: var(--paper);
+    border-color: var(--green-light);
+  }
+  .upload-zone.has-image { padding: 1rem; }
+  .upload-zone .icon { font-size: 3rem; margin-bottom: 0.5rem; opacity: 0.5; }
+  .upload-zone p { color: var(--text-light); }
+  .upload-zone input { display: none; }
+  .upload-zone img {
+    max-width: 100%;
+    max-height: 320px;
+    border-radius: 8px;
+    display: block;
+    margin: 0 auto;
+  }
+  .btn {
+    display: inline-block;
+    padding: 0.65rem 1.5rem;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: inherit;
+  }
+  .btn-primary { background: var(--green); color: #fff; }
+  .btn-primary:hover { background: var(--green-light); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-danger:hover { opacity: 0.9; }
+  .btn-outline {
+    background: transparent;
+    border: 2px solid var(--green);
+    color: var(--green);
+  }
+  .btn-outline:hover { background: var(--green); color: #fff; }
+  .btn-sm { padding: 0.4rem 0.9rem; font-size: 0.8rem; }
+  .actions { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; }
+  .result-card {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    margin-top: 1.5rem;
+  }
+  .result-card h2 { margin-bottom: 1rem; font-size: 1.2rem; }
+  .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .result-grid .label { font-size: 0.8rem; color: var(--text-light); }
+  .result-grid .value { font-weight: 600; font-size: 1.1rem; }
+  .severity { display: inline-block; padding: 0.2rem 0.7rem; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
+  .severity-High { background: #fadbd8; color: var(--danger); }
+  .severity-Medium { background: #fef0ca; color: var(--warning); }
+  .severity-Low { background: #d4efdf; color: var(--safe); }
+  .severity-None { background: #e8e8e8; color: var(--text-light); }
+  .confidence-bar {
+    height: 10px;
+    background: #eee;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 0.25rem 0;
+  }
+  .confidence-bar .fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.5s;
+  }
+  .rec-list { list-style: none; margin-top: 0.75rem; }
+  .rec-list li {
+    padding: 0.4rem 0 0.4rem 1.5rem;
+    position: relative;
+    font-size: 0.9rem;
+  }
+  .rec-list li::before {
+    content: "\2713";
+    position: absolute;
+    left: 0;
+    color: var(--green);
+    font-weight: 700;
+  }
+  .spinner {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border: 3px solid var(--paper);
+    border-top-color: var(--green);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .table-wrapper { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  th, td { padding: 0.7rem 0.8rem; text-align: left; font-size: 0.9rem; }
+  th {
+    background: var(--dark);
+    color: #fff;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  tr:not(:last-child) td { border-bottom: 1px solid #eee; }
+  tr:hover td { background: #f8faf8; }
+  tr.expanded td { background: var(--paper); }
+  .expand-content { display: none; }
+  tr.expanded .expand-content { display: block; }
+  .search-bar {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  .search-bar input, .search-bar select {
+    padding: 0.6rem 1rem;
+    border: 2px solid #ddd;
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    font-family: inherit;
+    background: #fff;
+    flex: 1;
+    min-width: 150px;
+  }
+  .search-bar input:focus, .search-bar select:focus {
+    outline: none;
+    border-color: var(--green);
+  }
+  .json-toggle { font-size: 0.8rem; color: var(--green); cursor: pointer; margin-top: 0.75rem; display: inline-block; }
+  .json-preview { display: none; background: #f5f5f5; padding: 1rem; border-radius: 6px; font-family: monospace; font-size: 0.8rem; margin-top: 0.5rem; white-space: pre-wrap; word-break: break-all; max-height: 300px; overflow: auto; }
+  .json-preview.open { display: block; }
+  .empty { text-align: center; padding: 3rem; color: var(--text-light); }
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--dark);
+    color: #fff;
+    padding: 0.8rem 1.5rem;
+    border-radius: var(--radius);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    transform: translateY(120%);
+    transition: transform 0.3s;
+    z-index: 999;
+  }
+  .toast.show { transform: translateY(0); }
+  .toast.error { background: var(--danger); }
+  .toast.success { background: var(--green); }
+  .clickable { cursor: pointer; }
+  @media (max-width: 600px) {
+    header h1 { font-size: 1.1rem; }
+    .result-grid { grid-template-columns: 1fr; }
+    .tabs button { padding: 0.6rem 1rem; font-size: 0.85rem; }
+    .container { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>AgriGuard <span>AI</span></h1>
+  <div class="sub">Offline Crop Disease Detection</div>
+</header>
+<div class="tabs">
+  <button class="active" data-tab="scan">Scan Crop</button>
+  <button data-tab="history">History</button>
+</div>
+
+<div class="container">
+
+<div id="tab-scan" class="tab-content active">
+  <div class="upload-zone" id="dropZone">
+    <div id="uploadPlaceholder">
+      <div class="icon">&#128247;</div>
+      <p>Drag &amp; drop a leaf image here, or click to select</p>
+    </div>
+    <div id="uploadPreview" style="display:none"></div>
+    <input type="file" id="fileInput" accept="image/*" capture="environment">
+  </div>
+  <div class="actions">
+    <button class="btn btn-primary" id="btnDetect" disabled>Detect Disease</button>
+    <button class="btn btn-outline btn-sm" id="btnClear">Clear</button>
+  </div>
+  <div id="scanStatus" style="margin-top:0.75rem"></div>
+  <div id="scanResult"></div>
+</div>
+
+<div id="tab-history" class="tab-content">
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search by crop or disease...">
+    <select id="severityFilter">
+      <option value="">All Severities</option>
+      <option value="High">High</option>
+      <option value="Medium">Medium</option>
+      <option value="Low">Low</option>
+      <option value="None">None</option>
+    </select>
+    <button class="btn btn-outline btn-sm" id="btnExportCSV">Export CSV</button>
+    <button class="btn btn-outline btn-sm" id="btnExportJSON">Export JSON</button>
+    <button class="btn btn-outline btn-sm" id="btnRefresh">Refresh</button>
+  </div>
+  <div id="historyContent"><div class="empty">Loading...</div></div>
+</div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API_BASE = '';
+
+let selectedFile = null;
+let currentPreviewUrl = null;
+
+const tabs = document.querySelectorAll('[data-tab]');
+const tabContents = {
+  scan: document.getElementById('tab-scan'),
+  history: document.getElementById('tab-history'),
+};
+
+tabs.forEach(btn => {
+  btn.addEventListener('click', () => {
+    tabs.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    Object.values(tabContents).forEach(tc => tc.classList.remove('active'));
+    const target = btn.dataset.tab;
+    tabContents[target].classList.add('active');
+    if (target === 'history') loadHistory();
+  });
+});
+
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+const uploadPreview = document.getElementById('uploadPreview');
+const btnDetect = document.getElementById('btnDetect');
+const btnClear = document.getElementById('btnClear');
+const scanStatus = document.getElementById('scanStatus');
+const scanResult = document.getElementById('scanResult');
+
+dropZone.addEventListener('click', () => fileInput.click());
+
+dropZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  dropZone.classList.add('dragover');
+});
+dropZone.addEventListener('dragleave', () => {
+  dropZone.classList.remove('dragover');
+});
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+
+fileInput.addEventListener('change', () => {
+  if (fileInput.files.length) handleFile(fileInput.files[0]);
+});
+
+function handleFile(file) {
+  if (!file.type.startsWith('image/')) {
+    showToast('Please select an image file', 'error');
+    return;
+  }
+  selectedFile = file;
+  if (currentPreviewUrl) URL.revokeObjectURL(currentPreviewUrl);
+  currentPreviewUrl = URL.createObjectURL(file);
+  uploadPreview.innerHTML = `<img src="${currentPreviewUrl}" alt="Preview">`;
+  uploadPreview.style.display = 'block';
+  uploadPlaceholder.style.display = 'none';
+  dropZone.classList.add('has-image');
+  btnDetect.disabled = false;
+  scanStatus.innerHTML = '';
+  scanResult.innerHTML = '';
+}
+
+btnClear.addEventListener('click', () => {
+  selectedFile = null;
+  if (currentPreviewUrl) { URL.revokeObjectURL(currentPreviewUrl); currentPreviewUrl = null; }
+  uploadPreview.innerHTML = '';
+  uploadPreview.style.display = 'none';
+  uploadPlaceholder.style.display = 'block';
+  dropZone.classList.remove('has-image');
+  btnDetect.disabled = true;
+  scanStatus.innerHTML = '';
+  scanResult.innerHTML = '';
+  fileInput.value = '';
+});
+
+btnDetect.addEventListener('click', async () => {
+  if (!selectedFile) return;
+  btnDetect.disabled = true;
+  scanStatus.innerHTML = '<span class="spinner"></span> Analysing leaf image...';
+  scanResult.innerHTML = '';
+
+  const fd = new FormData();
+  fd.append('file', selectedFile);
+
+  try {
+    const res = await fetch(`${API_BASE}/detect`, { method: 'POST', body: fd });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || `Server error ${res.status}`);
+    }
+    const data = await res.json();
+    showResult(data);
+    showToast('Detection complete', 'success');
+  } catch (err) {
+    scanStatus.innerHTML = `<span style="color:var(--danger)">Error: ${err.message}</span>`;
+    showToast(err.message, 'error');
+  } finally {
+    btnDetect.disabled = false;
+  }
+});
+
+function showResult(data) {
+  scanStatus.innerHTML = '';
+  const confPct = Math.round(data.confidence * 100);
+  const confColor = confPct > 80 ? 'var(--green)' : confPct > 50 ? 'var(--warning)' : 'var(--danger)';
+
+  let recHtml = '';
+  if (data.recommendation && data.recommendation.length) {
+    recHtml = '<ul class="rec-list">' + data.recommendation.map(r => `<li>${r}</li>`).join('') + '</ul>';
+  }
+
+  const jsonStr = JSON.stringify(data, null, 2);
+
+  scanResult.innerHTML = `
+    <div class="result-card">
+      <h2>Detection Result</h2>
+      <div class="result-grid">
+        <div><div class="label">Crop</div><div class="value">${data.crop}</div></div>
+        <div><div class="label">Disease</div><div class="value">${data.disease}</div></div>
+        <div>
+          <div class="label">Confidence</div>
+          <div class="value">${confPct}%</div>
+          <div class="confidence-bar"><div class="fill" style="width:${confPct}%;background:${confColor}"></div></div>
+        </div>
+        <div>
+          <div class="label">Severity</div>
+          <div class="value"><span class="severity severity-${data.severity}">${data.severity}</span></div>
+        </div>
+        ${data.affected_area ? `<div><div class="label">Affected Area</div><div class="value">${data.affected_area}</div></div>` : ''}
+      </div>
+      ${recHtml ? `<div style="margin-top:1rem"><div class="label">Recommendations</div>${recHtml}</div>` : ''}
+      <div class="json-toggle" onclick="toggleJSON(this)">Show Raw JSON</div>
+      <div class="json-preview">${jsonStr}</div>
+    </div>
+  `;
+}
+
+function toggleJSON(el) {
+  const pre = el.nextElementSibling;
+  pre.classList.toggle('open');
+  el.textContent = pre.classList.contains('open') ? 'Hide Raw JSON' : 'Show Raw JSON';
+}
+
+async function loadHistory() {
+  const content = document.getElementById('historyContent');
+  content.innerHTML = '<div class="empty"><span class="spinner"></span> Loading history...</div>';
+
+  const search = document.getElementById('searchInput').value.trim();
+  const severity = document.getElementById('severityFilter').value;
+  const params = new URLSearchParams();
+  if (severity) params.set('severity', severity);
+
+  try {
+    const res = await fetch(`${API_BASE}/history?${params}`);
+    if (!res.ok) throw new Error('Failed to load history');
+    let data = await res.json();
+
+    if (search) {
+      const q = search.toLowerCase();
+      data = data.filter(d => d.crop.toLowerCase().includes(q) || d.disease.toLowerCase().includes(q));
+    }
+
+    if (!data.length) {
+      content.innerHTML = '<div class="empty">No records found</div>';
+      return;
+    }
+
+    content.innerHTML = '<div class="table-wrapper"><table><thead><tr><th>ID</th><th>Date</th><th>Crop</th><th>Disease</th><th>Confidence</th><th>Severity</th><th></th></tr></thead><tbody id="historyBody"></tbody></table></div>';
+    const tbody = document.getElementById('historyBody');
+
+    data.forEach(row => {
+      const conf = Math.round(row.confidence * 100);
+      const tr = document.createElement('tr');
+      tr.classList.add('clickable');
+      tr.innerHTML = `
+        <td>#${row.id}</td>
+        <td>${new Date(row.timestamp).toLocaleDateString()}</td>
+        <td>${row.crop}</td>
+        <td>${row.disease}</td>
+        <td>${conf}%</td>
+        <td><span class="severity severity-${row.severity}">${row.severity}</span></td>
+        <td><button class="btn btn-sm btn-danger" data-id="${row.id}">Delete</button></td>
+      `;
+      const expandRow = document.createElement('tr');
+      expandRow.classList.add('expand-content');
+      expandRow.innerHTML = `
+        <td colspan="7">
+          <div style="padding:0.75rem">
+            <strong>Affected Area:</strong> ${row.affected_area || 'N/A'}<br>
+            <strong>Recommendations:</strong>
+            ${row.recommendation && row.recommendation.length
+              ? '<ul class="rec-list">' + row.recommendation.map(r => `<li>${r}</li>`).join('') + '</ul>'
+              : 'None'}
+            ${row.image_path ? `<br><strong>Image:</strong> ${row.image_path}` : ''}
+          </div>
+        </td>
+      `;
+
+      tr.addEventListener('click', () => {
+        expandRow.classList.toggle('expanded');
+        tr.classList.toggle('expanded');
+      });
+
+      tr.querySelector('[data-id]').addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (!confirm('Delete entry #' + row.id + '?')) return;
+        try {
+          const delRes = await fetch(`${API_BASE}/history/${row.id}`, { method: 'DELETE' });
+          if (!delRes.ok) throw new Error('Delete failed');
+          tr.remove();
+          expandRow.remove();
+          showToast('Entry deleted', 'success');
+          if (!tbody.children.length) loadHistory();
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+
+      tbody.appendChild(tr);
+      tbody.appendChild(expandRow);
+    });
+  } catch (err) {
+    content.innerHTML = `<div class="empty" style="color:var(--danger)">Error: ${err.message}</div>`;
+  }
+}
+
+document.getElementById('searchInput').addEventListener('input', debounce(loadHistory, 300));
+document.getElementById('severityFilter').addEventListener('change', loadHistory);
+document.getElementById('btnRefresh').addEventListener('click', loadHistory);
+
+document.getElementById('btnExportCSV').addEventListener('click', async () => {
+  try {
+    const res = await fetch(`${API_BASE}/export/csv`);
+    if (!res.ok) throw new Error('Export failed');
+    const blob = await res.blob();
+    downloadBlob(blob, 'agriguard_export.csv');
+    showToast('CSV downloaded', 'success');
+  } catch (err) { showToast(err.message, 'error'); }
+});
+
+document.getElementById('btnExportJSON').addEventListener('click', async () => {
+  try {
+    const res = await fetch(`${API_BASE}/export/json`);
+    if (!res.ok) throw new Error('Export failed');
+    const blob = await res.blob();
+    downloadBlob(blob, 'agriguard_export.json');
+    showToast('JSON downloaded', 'success');
+  } catch (err) { showToast(err.message, 'error'); }
+});
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function debounce(fn, ms) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), ms);
+  };
+}
+
+const toast = document.getElementById('toast');
+let toastTimer;
+
+function showToast(msg, type = 'info') {
+  toast.textContent = msg;
+  toast.className = 'toast ' + type;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
