@@ -1,0 +1,62 @@
+# Git
+.git
+.gitlab-ci.yml
+
+# Python
+venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.coverage
+htmlcov
+
+# Node
+node_modules
+npm-debug.log
+
+# Build
+build
+dist
+*.egg-info
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.*
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Models (large binaries)
+models/*.tflite
+models/*.gguf
+models/*.bin
+
+# Frontend source (only build output needed in runtime image)
+frontend/src
+frontend/public
+frontend/tailwind.config.js
+frontend/postcss.config.js
+frontend/package.json
+frontend/package-lock.json
+
+# Docs (optional: exclude if not needed in runtime image)
+# docs/
+
+# Misc
+tmp
+temp
+*.tmp
