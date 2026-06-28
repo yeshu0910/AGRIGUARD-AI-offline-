@@ -24,6 +24,7 @@ lint:
     - pip install -r requirements-dev.txt
   script:
     - ruff check .
+    - ruff format --check .
   allow_failure: false
   artifacts:
     when: always
