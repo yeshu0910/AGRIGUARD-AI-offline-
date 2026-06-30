@@ -29,10 +29,8 @@ class DiseaseDetector:
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))), self.model_path
         )
         if not os.path.exists(resolved):
-            raise FileNotFoundError(
-                f"TFLite model not found at {resolved}. "
-                "Please place disease_model.tflite in the models/ directory."
-            )
+            print(f"[detect] Model not found at {resolved}. Detection will fail with 503.")
+            return
         try:
             import tensorflow.lite as tflite
         except ImportError:
@@ -59,6 +57,8 @@ class DiseaseDetector:
         self.model_loaded = True
 
     def predict(self, image_path: str, extract_leaf: bool = False) -> dict:
+        if not self.model_loaded:
+            raise FileNotFoundError(f"Model not loaded: {self.model_path}")
         t0 = time.perf_counter()
         input_data = preprocess(
             image_path, target_size=self.input_size, extract_leaf_region=extract_leaf
