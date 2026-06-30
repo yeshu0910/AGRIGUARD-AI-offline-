@@ -16,9 +16,9 @@ from ml_pipeline.examples.basic_usage import (
 )
 
 __all__ = [
-    'example_train',
-    'example_predict',
-    'example_batch_predict',
-    'example_gradcam',
-    'example_custom_config',
+    "example_train",
+    "example_predict",
+    "example_batch_predict",
+    "example_gradcam",
+    "example_custom_config",
 ]

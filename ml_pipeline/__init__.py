@@ -30,7 +30,7 @@ from ml_pipeline.utils import (
     parse_class_name,
     get_severity,
     get_recommendations,
-    Timer
+    Timer,
 )
 from ml_pipeline.dataset_loader import DatasetLoader, validate_dataset_structure
 from ml_pipeline.model import CropDiseaseModel, create_model
@@ -38,23 +38,23 @@ from ml_pipeline.predict import CropDiseasePredictor, create_predictor
 
 __all__ = [
     # Config
-    'get_config',
-    'Config',
+    "get_config",
+    "Config",
     # Utils
-    'setup_logging',
-    'save_json',
-    'load_json',
-    'parse_class_name',
-    'get_severity',
-    'get_recommendations',
-    'Timer',
+    "setup_logging",
+    "save_json",
+    "load_json",
+    "parse_class_name",
+    "get_severity",
+    "get_recommendations",
+    "Timer",
     # Dataset
-    'DatasetLoader',
-    'validate_dataset_structure',
+    "DatasetLoader",
+    "validate_dataset_structure",
     # Model
-    'CropDiseaseModel',
-    'create_model',
+    "CropDiseaseModel",
+    "create_model",
     # Prediction
-    'CropDiseasePredictor',
-    'create_predictor'
+    "CropDiseasePredictor",
+    "create_predictor",
 ]
