@@ -41,12 +41,11 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
 # =========================
-# Streamlit port
+# FastAPI port
 # =========================
-EXPOSE 8501
+EXPOSE 8000
 
 # =========================
-# Run Streamlit app
-# (update path if needed)
+# Run FastAPI app
 # =========================
-CMD ["streamlit", "run", "ml_pipeline/streamlit_app.py", "--server.address=0.0.0.0", "--server.port=8501"]
+CMD ["uvicorn", "AgriGuard.backend.app:app", "--host", "0.0.0.0", "--port", "8000"]

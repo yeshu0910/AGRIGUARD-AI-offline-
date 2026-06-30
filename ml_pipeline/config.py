@@ -6,7 +6,7 @@ including model settings, training parameters, and file paths.
 """
 
 from pathlib import Path
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Tuple
 
 
@@ -37,9 +37,12 @@ class TrainingConfig:
     # Training parameters
     BATCH_SIZE: int = 32
     INITIAL_EPOCHS: int = 20
-    FINE_TUNE_EPOCHS: int = 10
+    FINE_TUNE_EPOCHS: int = 15
     LEARNING_RATE: float = 0.001
     FINE_TUNE_LR: float = 0.0001
+    
+    # Class weights for imbalanced datasets
+    CLASS_WEIGHTS: bool = True
     
     # Loss and optimizer
     LOSS: str = "sparse_categorical_crossentropy"
@@ -101,11 +104,11 @@ class PredictionConfig:
 @dataclass
 class Config:
     """Main configuration class combining all configs."""
-    model: ModelConfig = ModelConfig()
-    training: TrainingConfig = TrainingConfig()
-    augmentation: AugmentationConfig = AugmentationConfig()
-    paths: PathConfig = PathConfig()
-    prediction: PredictionConfig = PredictionConfig()
+    model: ModelConfig = field(default_factory=ModelConfig)
+    training: TrainingConfig = field(default_factory=TrainingConfig)
+    augmentation: AugmentationConfig = field(default_factory=AugmentationConfig)
+    paths: PathConfig = field(default_factory=PathConfig)
+    prediction: PredictionConfig = field(default_factory=PredictionConfig)
 
 
 # Global config instance

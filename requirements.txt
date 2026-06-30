@@ -8,3 +8,6 @@ tensorflow>=2.15.0
 llama-cpp-python>=0.2.80
 python-multipart>=0.0.9
 python-dotenv>=1.0.0
+streamlit>=1.31.0
+pillow>=10.0.0
+pyyaml>=6.0

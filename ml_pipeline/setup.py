@@ -243,7 +243,6 @@ def run_setup() -> bool:
         print("\nNext steps:")
         print("  1. python ml_pipeline/train.py")
         print("  2. python ml_pipeline/predict.py <image_path>")
-        print("  3. streamlit run ml_pipeline/streamlit_app.py")
     else:
         print("⚠️  Setup incomplete. Please address the issues above.")
     print("=" * 60)

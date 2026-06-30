@@ -152,51 +152,6 @@ def example_custom_config():
     print("=" * 60)
 
 
-# Example 6: Streamlit integration
-def example_streamlit_integration():
-    """Example: Integration with Streamlit."""
-    code = """
-import streamlit as st
-from ml_pipeline import create_predictor, format_prediction_for_streamlit
-from PIL import Image
-
-# Cache model for performance
-@st.cache_resource
-def load_model():
-    return create_predictor()
-
-predictor = load_model()
-
-# Streamlit UI
-st.title("🌿 AgriGuard AI")
-
-uploaded_file = st.file_uploader("Upload image", type=["jpg", "jpeg", "png"])
-
-if uploaded_file:
-    image = Image.open(uploaded_file)
-    
-    # Predict
-    result = predictor.predict(image)
-    formatted = format_prediction_for_streamlit(result)
-    
-    # Display results
-    st.header("Results")
-    st.write(f"**Crop:** {formatted['crop']}")
-    st.write(f"**Disease:** {formatted['disease']}")
-    st.write(f"**Confidence:** {formatted['confidence']}")
-    
-    # Grad-CAM
-    if st.checkbox("Show Grad-CAM"):
-        gradcam = predictor.generate_gradcam(image)
-        st.image(gradcam)
-"""
-    
-    print("\nExample 6: Streamlit integration")
-    print("=" * 60)
-    print("See code in function example_streamlit_integration()")
-    print("=" * 60)
-
-
 def main():
     """Run all examples."""
     print("AgriGuard AI ML Pipeline - Examples")
@@ -207,8 +162,7 @@ def main():
         ("Make Predictions", example_predict),
         ("Batch Prediction", example_batch_predict),
         ("Grad-CAM Visualization", example_gradcam),
-        ("Custom Configuration", example_custom_config),
-        ("Streamlit Integration", example_streamlit_integration)
+        ("Custom Configuration", example_custom_config)
     ]
     
     print("\nAvailable examples:")

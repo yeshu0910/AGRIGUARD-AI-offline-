@@ -37,7 +37,7 @@ No data leaves the device. No API keys, no cloud, no network required.
 - CPU-Only Inference – Optimized for Intel/AMD/ARM processors.
 - Responsive Web UI – Works on phones, tablets, and desktops.
 - Local LLM Recommendations – Phi-3 Mini via llama.cpp gives structured advice.
-- 14 Crop-Disease Knowledge Base – Built-in expert recommendations for Tomato, Potato, and Pepper bell crops.
+- 30 Supported Crops – Automatic class discovery from dataset folder structure.
 - SQLite History – Full audit trail with timestamp, image path, and confidence.
 - JSON/CSV Export – Machine-readable reports for integration or printing.
 - Privacy First – All data stays on-device.
@@ -73,6 +73,90 @@ Responsive Dashboard (history, filters, export)
 | SQLite | Persistent offline storage with WAL mode |
 | Dashboard | Gallery, filters, history, export |
 
+## Supported Crops
+
+AgriGuard AI supports **30 crops** with automatic class discovery. The model detects both diseases and healthy plants for each crop.
+
+| # | Crop | Diseases Covered |
+|---|------|-----------------|
+| 1 | Tomato | Bacterial spot, Early blight, Late blight, Leaf mold, Septoria leaf spot, Spider mites, Target spot, Mosaic virus, Yellow leaf curl virus |
+| 2 | Potato | Early blight, Late blight |
+| 3 | Maize / Corn | Cercospora leaf spot, Common rust, Northern leaf blight |
+| 4 | Rice | Blast, Brown spot, Tungro |
+| 5 | Wheat | Brown rust, Yellow rust, Septoria |
+| 6 | Cotton | Aphid, Bacterial blight, Fusarium wilt, Leaf spot |
+| 7 | Soybean | Bacterial blight, Frog eye leaf spot, Rust |
+| 8 | Pepper | Bacterial spot |
+| 9 | Apple | Apple scab, Black rot, Cedar apple rust |
+| 10 | Grape | Black rot, Esca, Leaf blight |
+| 11 | Banana | Black Sigatoka, Panama wilt |
+| 12 | Mango | Anthracnose, Powdery mildew |
+| 13 | Sugarcane | Red rot, Smut |
+| 14 | Chili | Anthracnose, Leaf spot, Powdery mildew |
+| 15 | Onion | Downy mildew, Purple blotch |
+| 16 | Garlic | Downy mildew, Rust |
+| 17 | Cabbage | Black rot, Clubroot |
+| 18 | Cauliflower | Black rot, Downy mildew |
+| 19 | Brinjal / Eggplant | Fruit borer, Leaf spot, Powdery mildew |
+| 20 | Cucumber | Downy mildew, Powdery mildew |
+| 21 | Pumpkin | Downy mildew, Powdery mildew |
+| 22 | Groundnut / Peanut | Early leaf spot, Late leaf spot, Rust |
+| 23 | Mustard | Alternaria blight, Powdery mildew |
+| 24 | Sunflower | Downy mildew, Rust |
+| 25 | Barley | Net blotch, Powdery mildew, Rust |
+| 26 | Millet | Blast, Downy mildew |
+| 27 | Pea | Downy mildew, Powdery mildew |
+| 28 | Watermelon | Anthracnose, Powdery mildew |
+| 29 | Papaya | Anthracnose, Powdery mildew, Ring spot virus |
+| 30 | Citrus (Orange/Lemon) | Canker, Greening, Scab |
+
+Each crop includes a **Healthy** class. Classes are detected automatically — no code changes needed when adding new crops.
+
+## Dataset Naming Convention
+
+Dataset folders follow the format:
+
+```
+Crop___Disease
+```
+
+Rules:
+- Crop and disease names use underscores (`_`) instead of spaces
+- Triple underscores (`___`) separate crop from disease
+- No brackets, no special characters
+
+Examples:
+```
+Tomato___Late_blight
+Rice___Blast
+Maize_Corn___Common_rust
+Citrus_Orange_Lemon___Greening
+Groundnut_Peanut___Leaf_spot
+```
+
+Dataset tree example:
+```
+dataset/
+├── Apple___Apple_scab/
+├── Apple___Black_rot/
+├── Apple___Cedar_apple_rust/
+├── Apple___Healthy/
+├── Tomato___Bacterial_spot/
+├── Tomato___Healthy/
+├── Tomato___Late_blight/
+...
+```
+
+### Class Discovery
+
+Classes are **automatically discovered** from folder names at training time:
+
+1. The `DatasetLoader` scans all subdirectories in `dataset/`
+2. Each folder name becomes a class label
+3. Folder names are sorted deterministically and saved to `models/classes.json`
+4. The model output layer size = `len(class_names)` (no hardcoded values)
+5. Adding a new crop or disease = adding a new folder — no code changes required
+
 ## Technology Stack
 
 | Layer | Technology | Purpose |
@@ -98,19 +182,19 @@ Responsive Dashboard (history, filters, export)
 ## Model Information
 
 ### Disease Classification Model
-- **Architecture**: MobileNetV2 (transfer learning)
-- **Format**: TensorFlow Lite (quantized)
-- **Input Size**: 128×128×3 RGB
-- **Output**: Softmax over disease classes
-- **Training Dataset**: PlantVillage dataset
-- **Classes**: 38 crop-disease pairs including Tomato, Potato, Pepper bell varieties
+- **Architecture**: EfficientNetB0 (transfer learning)
+- **Format**: Keras / TensorFlow
+- **Input Size**: 224×224×3 RGB
+- **Output**: Softmax over disease classes (dynamic, based on dataset)
+- **Class Discovery**: Automatic — reads folder names from `dataset/`
+- **Supported Crops**: 30 crops with 80–150 disease/healthy classes
 
 ### Recommendation Model
 - **Model**: Phi-3 Mini 4K Instruct
 - **Format**: 4-bit GGUF quantized
 - **Runtime**: llama.cpp
 - **Context**: 2048 tokens
-- **Fallback**: Built-in curated knowledge base for 14+ crop-disease combinations
+- **Fallback**: Built-in curated knowledge base covering 30 crops and common diseases
 
 ## Offline Mode
 
@@ -160,7 +244,7 @@ pip install -r requirements.txt
 python -c "from backend.database import init_db; init_db()"
 
 # 5. Run backend
-uvicorn backend.main:app --reload --port 8000
+uvicorn AgriGuard.backend.app:app --reload --port 8000
 
 # 6. Run frontend (in separate terminal, optional)
 cd frontend

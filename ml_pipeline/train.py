@@ -51,6 +51,7 @@ class Trainer:
         self.train_generator = None
         self.val_generator = None
         self.class_names = []
+        self.class_weights = {}
         
         self.history_initial = None
         self.history_fine_tune = None
@@ -94,8 +95,10 @@ class Trainer:
         logger.info("Loading dataset...")
         
         with Timer("Dataset loading"):
-            self.train_generator, self.val_generator = self.dataset_loader.load_dataset()
+            self.train_generator, self.val_generator, self.class_weights = \
+                self.dataset_loader.load_dataset()
         
+        logger.info(f"Class weights computed: {len(self.class_weights)} classes")
         logger.info("Dataset loaded successfully!")
     
     def train(self) -> None:
@@ -104,10 +107,21 @@ class Trainer:
         logger.info("Starting training pipeline")
         logger.info("=" * 60)
         
+        # Build class_weight dict for Keras (index -> weight)
+        use_weights = self.config.training.CLASS_WEIGHTS
+        class_weight = None
+        if use_weights and self.class_weights:
+            class_weight = {
+                self.dataset_loader.class_to_index[name]: weight
+                for name, weight in self.class_weights.items()
+            }
+            logger.info(f"Using class weights: {len(class_weight)} classes balanced")
+        
         with Timer("Complete training"):
             self.history_initial, self.history_fine_tune = self.model_wrapper.train(
                 self.train_generator,
-                self.val_generator
+                self.val_generator,
+                class_weight=class_weight
             )
         
         logger.info("Training completed successfully!")
@@ -466,7 +480,7 @@ def main():
         '--epochs-fine-tune',
         type=int,
         default=None,
-        help='Number of fine-tuning epochs (default: 10)'
+        help='Number of fine-tuning epochs (default: 15)'
     )
     
     args = parser.parse_args()

@@ -55,6 +55,22 @@ async def startup() -> None:
     init_db()
 
 
+@app.get("/")
+async def root() -> dict:
+    return {
+        "message": "Welcome to AgriGuard AI - Offline Crop Disease Detection",
+        "version": "2.0.0",
+        "docs": "/docs",
+        "endpoints": {
+            "health": "/health",
+            "detect": "/detect (POST)",
+            "history": "/history",
+            "export_csv": "/export/csv",
+            "export_json": "/export/json",
+        },
+    }
+
+
 @app.get("/health")
 async def health() -> dict:
     model_ok = False

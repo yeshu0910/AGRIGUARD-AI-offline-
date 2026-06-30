@@ -7,7 +7,7 @@ for crop disease classification.
 
 import logging
 from pathlib import Path
-from typing import Tuple, Optional, List
+from typing import Tuple, Optional, List, Dict
 
 import numpy as np
 import tensorflow as tf
@@ -219,7 +219,8 @@ class CropDiseaseModel:
         train_generator,
         val_generator,
         initial_epochs: Optional[int] = None,
-        fine_tune_epochs: Optional[int] = None
+        fine_tune_epochs: Optional[int] = None,
+        class_weight: Optional[Dict[int, float]] = None
     ) -> Tuple[keras.callbacks.History, keras.callbacks.History]:
         """
         Train the model with two-phase approach.
@@ -229,6 +230,7 @@ class CropDiseaseModel:
             val_generator: Validation data generator
             initial_epochs: Number of epochs for initial training
             fine_tune_epochs: Number of epochs for fine-tuning
+            class_weight: Optional dictionary mapping class indices to weights
         
         Returns:
             Tuple[History, History]: Training histories for both phases
@@ -248,7 +250,8 @@ class CropDiseaseModel:
             validation_data=val_generator,
             epochs=initial_epochs,
             callbacks=callbacks_list,
-            verbose=1
+            verbose=1,
+            class_weight=class_weight
         )
         
         # Phase 2: Fine-tune with unfrozen layers
@@ -264,7 +267,8 @@ class CropDiseaseModel:
             epochs=fine_tune_epochs,
             callbacks=callbacks_list,
             verbose=1,
-            initial_epoch=len(history_initial.history['loss'])
+            initial_epoch=len(history_initial.history['loss']),
+            class_weight=class_weight
         )
         
         # Combine histories

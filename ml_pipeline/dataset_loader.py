@@ -9,6 +9,7 @@ import logging
 from pathlib import Path
 from typing import Tuple, List, Dict, Optional
 import random
+from collections import Counter
 
 import numpy as np
 from PIL import Image
@@ -182,12 +183,14 @@ class DatasetLoader:
         return dataset
     
     def load_dataset(self) -> Tuple[tf.keras.preprocessing.image.DirectoryIterator, 
-                                     tf.keras.preprocessing.image.DirectoryIterator]:
+                                     tf.keras.preprocessing.image.DirectoryIterator,
+                                     Dict[str, float]]:
         """
         Load complete dataset with train/validation split.
         
         Returns:
-            Tuple[DirectoryIterator, DirectoryIterator]: Train and validation datasets
+            Tuple[DirectoryIterator, DirectoryIterator, Dict]: Train and validation datasets
+                and class weights dictionary
         """
         logger.info("Loading dataset...")
         
@@ -202,9 +205,12 @@ class DatasetLoader:
         self.train_generator = self.create_dataset(train_datagen, subset='training')
         self.val_generator = self.create_dataset(val_datagen, subset='validation')
         
+        # Compute class weights
+        class_weights = self.compute_class_weights()
+        
         logger.info("Dataset loaded successfully!")
         
-        return self.train_generator, self.val_generator
+        return self.train_generator, self.val_generator, class_weights
     
     def get_class_distribution(self) -> Dict[str, int]:
         """
@@ -226,6 +232,34 @@ class DatasetLoader:
         
         return distribution
     
+    def compute_class_weights(self) -> Dict[str, float]:
+        """
+        Compute class weights using inverse-frequency balancing.
+
+        Returns:
+            Dict[str, float]: Dictionary mapping class names to weight values
+        """
+        if not self.train_generator:
+            raise ValueError("Dataset not loaded. Call load_dataset() first.")
+
+        class_indices = self.train_generator.class_indices
+        label_counts = Counter(self.train_generator.labels)
+
+        n_samples = len(self.train_generator.labels)
+        n_classes = len(class_indices)
+
+        weights = {}
+        for class_name, idx in class_indices.items():
+            count = label_counts.get(idx, 1)
+            weight = n_samples / (n_classes * count)
+            weights[class_name] = round(weight, 4)
+
+        logger.info("Computed class weights (inverse-frequency):")
+        for name, w in sorted(weights.items()):
+            logger.info(f"  {name}: {w}")
+
+        return weights
+
     def print_dataset_info(self) -> None:
         """Print detailed dataset information."""
         if not self.class_names:

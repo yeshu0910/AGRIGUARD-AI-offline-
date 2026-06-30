@@ -13,7 +13,6 @@ from ml_pipeline.examples.basic_usage import (
     example_batch_predict,
     example_gradcam,
     example_custom_config,
-    example_streamlit_integration
 )
 
 __all__ = [
@@ -22,5 +21,4 @@ __all__ = [
     'example_batch_predict',
     'example_gradcam',
     'example_custom_config',
-    'example_streamlit_integration'
 ]

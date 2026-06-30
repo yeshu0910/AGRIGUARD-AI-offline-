@@ -120,15 +120,17 @@ def parse_class_name(class_name: str) -> Tuple[str, str]:
     Example:
         >>> parse_class_name("Tomato___Late_Blight")
         ("Tomato", "Late Blight")
+        >>> parse_class_name("Maize_Corn___Common_rust")
+        ("Maize Corn", "Common Rust")
         >>> parse_class_name("Tomato___Healthy")
         ("Tomato", "Healthy")
     """
     parts = class_name.split('___')
     
     if len(parts) == 2:
-        crop = parts[0].replace('_', ' ')
-        disease = parts[1].replace('_', ' ')
-        return crop, disease
+        crop = parts[0].replace('_', ' ').strip()
+        disease = parts[1].replace('_', ' ').strip()
+        return crop.title(), disease.title()
     else:
         # If format is unexpected, return as-is
         return class_name, "Unknown"
@@ -232,6 +234,60 @@ def get_recommendations(crop: str, disease: str) -> List[str]:
             "Remove infected plants to prevent spread",
             "Soil solarization may help reduce pathogen load",
             "Use resistant varieties"
+        ])
+    elif "anthracnose" in disease_lower:
+        recommendations.extend([
+            "Apply fungicides containing chlorothalonil or mancozeb",
+            "Prune infected branches and improve air circulation",
+            "Avoid overhead irrigation and remove plant debris"
+        ])
+    elif "blast" in disease_lower:
+        recommendations.extend([
+            "Apply fungicides containing tricyclazole or carbendazim",
+            "Avoid excessive nitrogen fertilization",
+            "Maintain proper plant spacing for airflow"
+        ])
+    elif "downy" in disease_lower:
+        recommendations.extend([
+            "Apply fungicides containing metalaxyl or mancozeb",
+            "Reduce leaf wetness by watering at soil level",
+            "Improve air circulation through proper spacing"
+        ])
+    elif "canker" in disease_lower:
+        recommendations.extend([
+            "Prune and destroy infected branches",
+            "Apply copper-based bactericides",
+            "Avoid wounding trees during cultivation"
+        ])
+    elif "greening" in disease_lower:
+        recommendations.extend([
+            "Remove and destroy infected trees promptly",
+            "Control psyllid vectors with insecticide",
+            "Use certified disease-free planting material"
+        ])
+    elif "smut" in disease_lower:
+        recommendations.extend([
+            "Remove and destroy infected plant material",
+            "Use disease-free seed or planting material",
+            "Practice crop rotation with non-host crops"
+        ])
+    elif "scab" in disease_lower:
+        recommendations.extend([
+            "Apply fungicides containing captan or sulfur",
+            "Rake and destroy fallen leaves to reduce inoculum",
+            "Prune to improve air circulation in canopy"
+        ])
+    elif "sigatoka" in disease_lower:
+        recommendations.extend([
+            "Apply fungicides containing mancozeb or propiconazole",
+            "Remove and destroy severely infected leaves",
+            "Maintain proper plant spacing for air circulation"
+        ])
+    elif "damping" in disease_lower or "damp" in disease_lower:
+        recommendations.extend([
+            "Improve soil drainage and avoid overwatering",
+            "Use sterilized potting mix for seedlings",
+            "Ensure adequate air circulation around seedlings"
         ])
     elif "healthy" in disease_lower:
         recommendations = [
