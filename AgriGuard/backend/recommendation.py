@@ -4,9 +4,8 @@ Fully offline — uses a curated knowledge base keyed by (crop, disease).
 Returns severity, chemical treatment, organic treatment, and prevention tips.
 """
 
-from typing import Optional
-
 KNOWLEDGE_BASE: dict[tuple[str, str], dict] = {}
+
 
 def _seed_knowledge():
     if KNOWLEDGE_BASE:

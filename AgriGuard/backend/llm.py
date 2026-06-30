@@ -1,7 +1,6 @@
 import json
 import os
 import time
-from typing import Optional
 
 FALLBACK_REPORTS: dict[str, dict] = {
     "early blight": {
@@ -56,7 +55,7 @@ FALLBACK_REPORTS: dict[str, dict] = {
 }
 
 
-def _find_fallback(disease: str) -> Optional[dict]:
+def _find_fallback(disease: str) -> dict | None:
     disease_lower = disease.lower()
     for key, report in FALLBACK_REPORTS.items():
         if key in disease_lower or disease_lower in key:
@@ -79,6 +78,7 @@ class ReportGenerator:
             return
         try:
             from llama_cpp import Llama
+
             self.llm = Llama(
                 model_path=resolved,
                 n_ctx=2048,
@@ -113,7 +113,10 @@ class ReportGenerator:
             t1 = time.perf_counter()
             print(f"[llm] Report generation completed in {t1 - t0:.3f}s")
 
-            raw = output.get("choices", [{}])[0].get("text", "").strip()
+            choices = output.get("choices", [])
+            if not choices:
+                return self.fallback_report(disease)
+            raw = choices[0].get("text", "").strip()
             raw = raw.strip().strip("`").strip()
             if raw.startswith("json"):
                 raw = raw[4:].strip()
