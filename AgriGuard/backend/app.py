@@ -56,19 +56,8 @@ async def startup() -> None:
 
 
 @app.get("/")
-async def root() -> dict:
-    return {
-        "message": "Welcome to AgriGuard AI - Offline Crop Disease Detection",
-        "version": "2.0.0",
-        "docs": "/docs",
-        "endpoints": {
-            "health": "/health",
-            "detect": "/detect (POST)",
-            "history": "/history",
-            "export_csv": "/export/csv",
-            "export_json": "/export/json",
-        },
-    }
+async def root() -> FileResponse:
+    return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
 
 
 @app.get("/health")
