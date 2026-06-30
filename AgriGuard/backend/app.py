@@ -1,18 +1,17 @@
 import json
 import os
+import shutil
 import sys
 import uuid
-import shutil
-from datetime import datetime
-from typing import Optional
+from datetime import datetime, timezone
 
-from fastapi import FastAPI, UploadFile, File, Query, HTTPException
-from fastapi.responses import Response, FileResponse
+from fastapi import FastAPI, File, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from database import init_db, insert_log, get_all_logs, get_log_by_id, delete_log, export_all_as_csv
+from database import delete_log, export_all_as_csv, get_all_logs, get_log_by_id, init_db, insert_log
 from detect import DiseaseDetector
 from llm import ReportGenerator
 
@@ -33,25 +32,21 @@ app.add_middleware(
 
 app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
 
-detector: Optional[DiseaseDetector] = None
-reporter: Optional[ReportGenerator] = None
+detector: DiseaseDetector | None = None
+reporter: ReportGenerator | None = None
 
 
 def get_detector() -> DiseaseDetector:
     global detector
     if detector is None:
-        detector = DiseaseDetector(
-            model_path=os.path.join("models", "disease_model.tflite")
-        )
+        detector = DiseaseDetector(model_path=os.path.join("models", "disease_model.tflite"))
     return detector
 
 
 def get_reporter() -> ReportGenerator:
     global reporter
     if reporter is None:
-        reporter = ReportGenerator(
-            model_path=os.path.join("models", "phi3.gguf")
-        )
+        reporter = ReportGenerator(model_path=os.path.join("models", "phi3.gguf"))
     return reporter
 
 
@@ -119,7 +114,7 @@ async def detect(file: UploadFile = File(...)) -> dict:
         report = result["recommendation"]
 
     log_data = {
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "crop": result["crop"],
         "disease": result["disease"],
         "confidence": result["confidence"],
@@ -149,7 +144,7 @@ async def detect(file: UploadFile = File(...)) -> dict:
 
 
 @app.get("/history")
-async def history(crop: Optional[str] = Query(None), severity: Optional[str] = Query(None)) -> list[dict]:
+async def history(crop: str | None = Query(None), severity: str | None = Query(None)) -> list[dict]:
     return get_all_logs(crop=crop, severity=severity)
 
 
@@ -180,7 +175,7 @@ async def history_delete(log_id: int) -> dict:
 @app.get("/export/csv")
 async def export_csv() -> Response:
     csv_content = export_all_as_csv()
-    filename = f"agriguard_export_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.csv"
+    filename = f"agriguard_export_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.csv"
     return Response(
         content=csv_content,
         media_type="text/csv",
@@ -191,7 +186,7 @@ async def export_csv() -> Response:
 @app.get("/export/json")
 async def export_json() -> Response:
     logs = get_all_logs()
-    filename = f"agriguard_export_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.json"
+    filename = f"agriguard_export_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.json"
     return Response(
         content=json.dumps(logs, indent=2),
         media_type="application/json",
@@ -210,4 +205,5 @@ async def serve_frontend(path: str) -> FileResponse:
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
