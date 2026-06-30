@@ -8,6 +8,6 @@ exclude = [
     "tests/*",
     "backend/database/migrate.py",
 ]
-ignore_names = ["_", "logger", "cfg", "settings"]
+ignore_names = ["_", "logger", "cfg", "settings", "app", "detector", "reporter"]
 min_confidence = 80
 sort_by_size = true

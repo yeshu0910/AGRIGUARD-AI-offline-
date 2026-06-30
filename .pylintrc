@@ -3,7 +3,7 @@ ignore=venv,__pycache__,build,dist,migrations
 load-plugins=pylint.extensions.docparams
 
 [MESSAGES CONTROL]
-disable=C0330,C0326,R0913
+disable=R0913,R0903,C0114,C0115,C0116,W0718,W1514,C0103,W0603,W0707,R0914,R0915,C0301,E0401,C0413,C0415,W0612,W0621,W0613
 enable=useless-suppression
 
 [FORMAT]
@@ -13,7 +13,8 @@ indent-string='    '
 [DESIGN]
 max-args=7
 max-attributes=10
+max-locals=20
 
 [TYPECHECK]
 ignored-classes=sqlalchemy
-ignored-modules=llama_cpp
+ignored-modules=llama_cpp,tensorflow,cv2

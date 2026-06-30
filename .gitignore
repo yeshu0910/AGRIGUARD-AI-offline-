@@ -1,12 +1,47 @@
 # Python
 __pycache__/
 *.py[cod]
+*.pyo
+*.pyd
 *.class
 *.so
 .Python
 venv/
 env/
-.venv
+.venv/
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build artifacts and models
+*.tflite
+*.h5
+*.onnx
+*.gguf
+*.bin
+AgriGuard/models/
+models/
+ml_pipeline/models/*.keras
+ml_pipeline/models/classes.json
+
+# Dataset and runtime data
+dataset/
+PlantVillage/
+Data/
+data/
+ml_pipeline/dataset/
+ml_pipeline/output/
+*.db
+*.sqlite
+*.sqlite3
 
 # IDE
 .vscode/
@@ -17,16 +52,38 @@ env/
 # OS
 .DS_Store
 Thumbs.db
+Desktop.ini
+
+# Frontend build
+frontend/build/
+
+# Test coverage and reports
+.coverage
+coverage.xml
+coverage_html/
+htmlcov/
+*.cover
+test-report.xml
+bandit-report.json
+gitleaks-report.json
+semgrep-report.json
 
 # Logs
 *.log
 agriguard.log
+logs/
 
-# ML Pipeline
-ml_pipeline/models/*.keras
-ml_pipeline/models/classes.json
-ml_pipeline/output/
-ml_pipeline/dataset/
+# Temporary
+tmp/
+temp/
+*.tmp
+
+# Tool caches
+.mypy_cache/
+.ruff_cache/
+
+# Pre-commit
+.pre-commit-config.yaml.bak
 
 # Jupyter
 .ipynb_checkpoints/

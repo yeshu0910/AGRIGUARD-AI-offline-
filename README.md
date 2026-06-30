@@ -1,12 +1,14 @@
 ﻿# AgriGuard AI – Offline Crop Disease Logger
 
-![Hackathon Phase](https://img.shields.io/badge/phase-1-blue)
-![Status](https://img.shields.io/badge/status-phase_1-completed-green)
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![License](https://img.shields.io/badge/license-AGPLv3-green)
 ![Platform](https://img.shields.io/badge/platform-offline_only-red)
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![Status](https://img.shields.io/badge/status-production--ready-brightgreen)
 
 ## Project Overview
 
-**AgriGuard AI** is a fully offline, CPU-first artificial intelligence application designed to detect crop diseases from leaf images without any internet connection. Built for the **Offline Local AI Hackathon**, it empowers small and marginal farmers to diagnose plant health instantly using a smartphone or laptop, regardless of network availability.
+**AgriGuard AI** is a fully offline, CPU-first artificial intelligence application designed to detect crop diseases from leaf images without any internet connection. Built for farmers, extension officers, and agricultural researchers, it empowers users to diagnose plant health instantly using a smartphone or laptop, regardless of network availability.
 
 The application combines a TensorFlow Lite classification model running on-device with a local small language model (Phi-3 Mini GGUF via llama.cpp) to generate structured, actionable treatment recommendations. All inference, storage, and reporting happen locally on CPU.
 
@@ -21,7 +23,7 @@ There is an urgent need for an **offline, zero-cost, privacy-preserving** diagno
 AgriGuard AI provides a complete offline AI pipeline:
 
 1. **Ingest** – Farmer or extension officer captures a leaf photo via the offline web interface.
-2. **Preprocess** – OpenCV normalizes the image (resize, color space, edges).
+2. **Preprocess** – OpenCV normalizes the image (resize, color space, optional leaf extraction).
 3. **Classify** – A quantized TensorFlow Lite model runs on CPU to identify the disease.
 4. **Recommend** – A local LLM (Phi-3 Mini, 4-bit GGUF) generates structured JSON treatment steps.
 5. **Store** – SQLite persists the diagnosis, confidence score, and recommendations locally.
@@ -31,138 +33,99 @@ No data leaves the device. No API keys, no cloud, no network required.
 
 ## Features
 
-- 🚫 **100% Offline** – No internet, no cloud APIs, no OpenAI.
-- ⚡ **CPU-Only Inference** – Optimized for Intel/AMD/ARM processors.
-- 📱 **Responsive Web UI** – Works on phones, tablets, and desktops.
-- 🧠 **Local LLM Recommendations** – Phi-3 Mini via llama.cpp gives structured advice.
-- 📊 **SQLite History** – Full audit trail with timestamp, image path, and confidence.
-- 📤 **JSON Export** – Machine-readable reports for integration or printing.
-- 🔒 **Privacy First** – All data stays on-device.
+- 100% Offline – No internet, no cloud APIs, no OpenAI.
+- CPU-Only Inference – Optimized for Intel/AMD/ARM processors.
+- Responsive Web UI – Works on phones, tablets, and desktops.
+- Local LLM Recommendations – Phi-3 Mini via llama.cpp gives structured advice.
+- 14 Crop-Disease Knowledge Base – Built-in expert recommendations for Tomato, Potato, and Pepper bell crops.
+- SQLite History – Full audit trail with timestamp, image path, and confidence.
+- JSON/CSV Export – Machine-readable reports for integration or printing.
+- Privacy First – All data stays on-device.
+- RESTful API – FastAPI endpoints for programmatic access.
+- Docker Support – Multi-stage build for production deployment.
 
-## Architecture Diagram
+## Architecture
 
 ```
 Leaf Image
     ↓
-OpenCV Preprocessing
+OpenCV Preprocessing (resize, normalize, leaf extraction)
     ↓
-TensorFlow Lite Model
+TensorFlow Lite Model (quantized, CPU delegate)
     ↓
-Phi-3 Mini (llama.cpp)
+Phi-3 Mini (llama.cpp, 4-bit GGUF)
     ↓
-JSON Report
+JSON Report (severity, treatment, prevention)
     ↓
-SQLite Storage
+SQLite Storage (WAL mode)
     ↓
-Responsive Dashboard
+Responsive Dashboard (history, filters, export)
 ```
 
 | Component | Role |
-|---|---|
+|-----------|------|
 | Leaf Image | User-captured photo of affected crop |
-| OpenCV | Resize, normalize, edge enhancement |
+| OpenCV | Resize, normalize, edge enhancement, leaf region extraction |
 | TensorFlow Lite | On-device disease classification |
 | Phi-3 Mini (llama.cpp) | Local LLM generates structured recommendations |
+| Knowledge Base | Curated fallback recommendations for 14 crop-disease pairs |
 | JSON Report | Structured output with confidence & advice |
-| SQLite | Persistent offline storage |
+| SQLite | Persistent offline storage with WAL mode |
 | Dashboard | Gallery, filters, history, export |
 
 ## Technology Stack
 
 | Layer | Technology | Purpose |
 |-------|------------|---------|
-| **Frontend** | HTML5 + Tailwind CSS + Vanilla JS | Responsive offline PWA-capable UI |
-| **Backend / API** | FastAPI (Python) | REST endpoints, CORS, async I/O |
-| **Image Processing** | OpenCV (Python) | Resize, normalize, augment |
-| **Inference Engine** | TensorFlow Lite (Python) | Quantized CPU-only classification |
-| **LLM Runtime** | llama.cpp + Phi-3 Mini GGUF | 4-bit quantized local text generation |
-| **Database** | SQLite3 + SQLAlchemy | Structured schema, full-text search |
-| **Serialization** | Pydantic v2 | JSON schema validation, API contracts |
-| **Packaging** | PyInstaller / Docker | Portable exe / container build |
+| Frontend | HTML5 + Tailwind CSS + Vanilla JS | Responsive offline PWA-capable UI |
+| Backend / API | FastAPI (Python) | REST endpoints, CORS, async I/O |
+| Image Processing | OpenCV (Python) | Resize, normalize, augment |
+| Inference Engine | TensorFlow Lite (Python) | Quantized CPU-only classification |
+| LLM Runtime | llama.cpp + Phi-3 Mini GGUF | 4-bit quantized local text generation |
+| Database | SQLite3 + SQLAlchemy | Structured schema, WAL mode |
+| Serialization | Pydantic v2 | JSON schema validation, API contracts |
+| Packaging | Docker / PyInstaller | Portable container or standalone binary |
 
-## Folder Structure
+## Screenshots
 
-```
-AgriGuard_AI/
-├── backend/
-│   ├── __init__.py
-│   ├── main.py                      # FastAPI app entrypoint
-│   ├── config.py                    # env config, paths
-│   ├── database/
-│   │   ├── __init__.py
-│   │   ├── engine.py                # SQLAlchemy engine + session factory
-│   │   ├── models.py                # SQLAlchemy ORM
-│   │   ├── schemas.py               # Pydantic DTOs
-│   │   ├── crud.py                  # DB helpers
-│   │   └── migrate.py               # Migration runner
-│   ├── routers/
-│   │   ├── __init__.py
-│   │   ├── disease.py               # /api/diagnose endpoint
-│   │   ├── history.py               # /api/history endpoints
-│   │   ├── stats.py                 # /api/stats endpoints
-│   │   └── export.py                # /api/export endpoints
-│   ├── services/
-│   │   ├── __init__.py
-│   │   ├── preprocessor.py          # OpenCV pipeline
-│   │   ├── tflite_inference.py      # TF Lite model wrapper
-│   │   ├── llm_service.py           # llama.cpp wrapper
-│   │   └── report_builder.py        # JSON / PDF assembly
-│   └── tests/
-│       ├── __init__.py
-│       ├── test_preprocessing.py
-│       ├── test_inference.py
-│       ├── test_llm.py
-│       └── test_api.py
-├── frontend/
-│   ├── index.html
-│   ├── tailwind.config.js
-│   ├── postcss.config.js
-│   ├── package.json
-│   ├── src/
-│   │   ├── css/
-│   │   │   └── main.css
-│   │   ├── js/
-│   │   │   ├── app.js
-│   │   │   ├── api.js
-│   │   │   ├── camera.js
-│   │   │   ├── gallery.js
-│   │   │   └── dashboard.js
-│   │   └── assets/
-│   │       ├── icons/
-│   │       └── images/
-│   └── build/                       # Production bundle
-├── models/
-│   ├── crop_disease_model.tflite
-│   ├── labels.txt
-│   └── phi-3-mini-4k-instruct-q4.gguf
-├── database/
-│   ├── agriguard.db                 # SQLite runtime file (gitignored)
-│   └── schema.sql                   # DDL for reference
-├── images/
-│   ├── sample_01.jpg
-│   ├── sample_02.jpg
-│   └── README_images.md             # Attribution / sources
-├── assets/
-│   ├── logo.svg
-│   └── favicon.ico
-├── docs/
-│   ├── README.md
-│   ├── SPECIFICATION_KIT.md
-│   ├── GITLAB_ISSUES.md
-│   ├── WORK_DIVISION_PLAN.md
-│   ├── PROJECT_TIMELINE.md
-│   ├── DELIVERABLES.md
-│   ├── FOLDER_STRUCTURE.md
-│   ├── ARCHITECTURE_DIAGRAM.md
-│   ├── PROJECT_SCOPE.md
-│   └── HACKATHON_ALIGNMENT.md
-├── tests/
-│   └── integration/                 # End-to-end pipeline tests
-├── .gitignore
-├── LICENSE                          # GNU AGPLv3 License
-├── requirements.txt                 # Python deps
-├── requirements-dev.txt             # Testing deps
-└── pyproject.toml                   # Build system metadata
+> Screenshots will be added to the `assets/` directory. Key views include:
+>
+> - **Diagnosis Page**: Image upload, camera capture, and result display
+> - **Dashboard**: History view with filters by crop, disease, and severity
+> - **Report View**: Detailed diagnosis with confidence, severity, and recommendations
+> - **Export**: JSON and CSV export functionality
+
+## Model Information
+
+### Disease Classification Model
+- **Architecture**: MobileNetV2 (transfer learning)
+- **Format**: TensorFlow Lite (quantized)
+- **Input Size**: 128×128×3 RGB
+- **Output**: Softmax over disease classes
+- **Training Dataset**: PlantVillage dataset
+- **Classes**: 38 crop-disease pairs including Tomato, Potato, Pepper bell varieties
+
+### Recommendation Model
+- **Model**: Phi-3 Mini 4K Instruct
+- **Format**: 4-bit GGUF quantized
+- **Runtime**: llama.cpp
+- **Context**: 2048 tokens
+- **Fallback**: Built-in curated knowledge base for 14+ crop-disease combinations
+
+## Offline Mode
+
+AgriGuard AI is designed for **complete offline operation**:
+
+- All AI models are stored locally in `models/`
+- SQLite database stores all data locally
+- No telemetry, no crash reporting, no external API calls
+- Frontend assets are served as a static PWA
+- Works on any device with Python 3.10+ and a modern browser
+
+To verify offline mode:
+```bash
+# Block all network access and test
+pytest tests/ -k offline
 ```
 
 ## Installation
@@ -170,20 +133,22 @@ AgriGuard_AI/
 ### Prerequisites
 
 - Python 3.10+
-- Node.js 18+ (for frontend build)
-- CMake 3.18+ (for llama.cpp build)
+- Node.js 18+ (for frontend build, optional)
+- CMake 3.18+ (for llama.cpp build, optional)
 - Git
+- 4 GB RAM minimum (8 GB recommended)
+- 2 GB free disk space for models and dependencies
 
 ### Quick Start (Development)
 
 ```bash
 # 1. Clone the repository
 git clone <repository-url>
-cd AgriGuard_AI
+cd agriguard-ai
 
 # 2. Set up Python environment
 python -m venv venv
-venv\\Scripts\\activate   # Linux/Mac: source venv/bin/activate
+venv\Scripts\activate   # Linux/Mac: source venv/bin/activate
 pip install -r requirements.txt
 
 # 3. Download models (offline copy)
@@ -192,12 +157,12 @@ pip install -r requirements.txt
 #   phi-3-mini-4k-instruct-q4.gguf
 
 # 4. Initialize SQLite database
-python -c "from backend.database.models import Base, engine; Base.metadata.create_all(bind=engine)"
+python -c "from backend.database import init_db; init_db()"
 
 # 5. Run backend
 uvicorn backend.main:app --reload --port 8000
 
-# 6. Run frontend (in separate terminal)
+# 6. Run frontend (in separate terminal, optional)
 cd frontend
 npm install
 npm run dev
@@ -206,7 +171,8 @@ npm run dev
 ### Docker (Recommended)
 
 ```bash
-docker compose up --build
+docker build -t agriguard-ai:latest .
+docker run --rm -p 8000:8000 -v "$(pwd)/models:/app/models" -v "$(pwd)/database:/app/database" agriguard-ai:latest
 ```
 
 ### Offline Deployment
@@ -218,28 +184,64 @@ pyinstaller --onefile --add-data "models:models" backend/main.py
 # Frontend as static PWA
 npm run build
 # Serve ./frontend/build/ via any static server
+
+# Or use Docker for full offline appliance
+docker compose up --build
 ```
 
-## Future Scope
+## API Endpoints
 
-- **Mobile App** – Native Android/iOS build using Flutter with on-device TFLite + llama.cpp bindings.
-- **Multilingual LLM** – Replace Phi-3 with a multilingual GGUF for regional language recommendations.
-- **Drone / IoT Integration** – Capture images from field cameras for continuous inference.
-- **Community Knowledge Graph** – Local knowledge base with region-specific pest data.
-- **Federated Learning** – Periodic model updates without exchanging raw data.
-- **IoT Edge Device Packaging** – Raspberry Pi 5 appliance for village centers.
-- **SMS Fallback** – USSD / SMS integration for feature-phone users.
-- **Yield Prediction** – Add regression model to estimate financial loss from disease severity.
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/health` | System health check |
+| POST | `/detect` | Upload image for disease detection |
+| GET | `/history` | List diagnosis history (filterable) |
+| GET | `/history/{id}` | Get specific diagnosis |
+| DELETE | `/history/{id}` | Delete diagnosis record |
+| GET | `/export/csv` | Export all records as CSV |
+| GET | `/export/json` | Export all records as JSON |
+| GET | `/` | Serve frontend SPA |
 
-## Why This Project Fits the Hackathon
+## Development Guide
 
-| Criterion | How AgriGuard AI Delivers |
-|-----------|---------------------------|
-| **Offline Resilience** | Zero network calls. All models, prompts, and DB are local. |
-| **CPU Efficiency** | TFLite CPU delegate + 4-bit GGUF weights. No GPU required. |
-| **Structured Data Extraction** | Pydantic-enforced JSON schemas for every diagnosis and recommendation. |
-| **Accuracy** | Quantized EfficientNet-MobileNet backbone + LLM post-processing for explainability. |
-| **User Experience** | Responsive PWA, camera-first, dark-mode UI, instant results. |
+### Setup Development Environment
+
+```bash
+pip install -r requirements-dev.txt
+pre-commit install
+```
+
+### Run Quality Checks
+
+```bash
+ruff check .                          # Lint with Ruff
+ruff format . --check                 # Check formatting with Ruff
+mypy backend/                         # Type check
+flake8 backend/                       # Style check
+pylint backend/                       # Code quality
+vulture backend/ --min-confidence 80  # Dead code detection
+bandit -qr backend/                   # Security scan
+semgrep --config=auto backend/        # SAST scan
+pyupgrade --py310-plus **/*.py        # Modernize syntax
+pip-audit -r requirements.txt         # Dependency audit
+```
+
+### Run Tests
+
+```bash
+pytest                          # Run all tests
+pytest --cov=backend            # With coverage
+pytest -v                       # Verbose output
+pytest tests/ -k offline        # Run offline-specific tests
+```
+
+## Contributing
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, development process, and commit conventions.
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for the full release history.
 
 ## License
 
@@ -247,5 +249,4 @@ GNU Affero General Public License v3.0 or later — see [LICENSE](LICENSE).
 
 ## Contact
 
-AgriGuard AI Team — [GitLab Repository](https://code.swecha.org/yeshu_09/agriguard-ai)
-
+AgriGuard AI Team — [GitLab Repository](mailto:team@example.com)

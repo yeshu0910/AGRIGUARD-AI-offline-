@@ -8,6 +8,19 @@ local image analysis prepares model input, TensorFlow Lite performs CPU-only
 disease prediction, recommendation logic creates farmer-readable guidance, and
 SQLite stores the result for dashboard history.
 
+## Components
+
+| Component | File | Responsibility |
+|-----------|------|----------------|
+| API Layer | `AgriGuard/backend/app.py` | FastAPI endpoints |
+| Preprocessing | `AgriGuard/backend/preprocess.py` | Image loading and transformation |
+| Detection | `AgriGuard/backend/detect.py` | TFLite model wrapper |
+| Label Parser | `AgriGuard/backend/crop_detector.py` | Parse PlantVillage labels |
+| Database | `AgriGuard/backend/database.py` | SQLite storage |
+| Recommendation | `AgriGuard/backend/recommendation.py` | Curated treatment knowledge |
+| LLM Client | `AgriGuard/backend/llm.py` | Local LLM integration |
+| Frontend | `AgriGuard/frontend/index.html` | Upload flow and result display |
+
 ## Technical Design
 
 - Frontend: upload/camera flow, progress state, result view, dashboard history.
@@ -19,14 +32,27 @@ SQLite stores the result for dashboard history.
 
 ## Data Flow
 
+```text
+Image Upload -> preprocess() -> predict() -> parse_label() -> get_recommendation() -> JSON Response
+```
+
 1. Farmer uploads a crop image.
 2. Backend validates the file.
 3. Preprocessor prepares the image tensor.
 4. Local model returns disease prediction and confidence score.
-5. Recommendation service adds remedy and prevention guidance.
-6. SQLite persists the diagnosis.
-7. Dashboard displays crop health history.
-8. Error states guide the farmer toward retry or agricultural expert support.
+5. Label parser maps model output to crop and disease names.
+6. Recommendation service adds remedy and prevention guidance.
+7. SQLite persists the diagnosis.
+8. Dashboard displays crop health history.
+9. Error states guide the farmer toward retry or agricultural expert support.
+
+## Dependencies
+
+- TFLite model for inference: `models/plant_disease.tflite`.
+- SQLite database: `database/history.db`.
+- Local LLM model: `models/*.gguf`.
+- CPU-only Python dependencies from `requirements.txt` and
+  `AgriGuard/backend/requirements.txt`.
 
 ## Milestones
 
@@ -59,4 +85,3 @@ SQLite stores the result for dashboard history.
 - Hide or disable the diagnosis route if validation fails.
 - Restore previous SQLite schema from backup if a migration was introduced.
 - Revert to the previous model artifact if accuracy or latency regresses.
-
