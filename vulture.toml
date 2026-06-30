@@ -1,12 +1,13 @@
 [vulture]
 exclude = [
-    "venv/*",
-    "__pycache__/*",
-    "build/*",
-    "dist/*",
-    "migrations/*",
-    "tests/*",
-    "backend/database/migrate.py",
+  "venv/*",
+  "__pycache__/*",
+  "build/*",
+  "dist/*",
+  "migrations/*",
+  "tests/*",
+  "AgriGuard/backend/database/migrate.py",
+  "ml_pipeline/*",
 ]
 ignore_names = ["_", "logger", "cfg", "settings", "app", "detector", "reporter"]
 min_confidence = 80

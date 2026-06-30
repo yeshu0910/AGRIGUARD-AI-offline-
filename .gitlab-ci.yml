@@ -22,8 +22,8 @@ before_script:
 format:
   stage: format
   script:
-    - pip install ruff
-    - ruff format --check .
+    - pip install -e .[dev]
+    - ruff format --check AgriGuard/backend/
 
 # =========================
 # LINT
@@ -31,8 +31,8 @@ format:
 lint:
   stage: lint
   script:
-    - pip install ruff
-    - ruff check .
+    - pip install -e .[dev]
+    - ruff check AgriGuard/backend/
 
 # =========================
 # TYPE CHECK
@@ -40,8 +40,8 @@ lint:
 type_check:
   stage: type_check
   script:
-    - pip install mypy
-    - mypy . || true
+    - pip install -e .[dev]
+    - mypy AgriGuard/backend/
 
 # =========================
 # DEAD CODE
@@ -49,8 +49,8 @@ type_check:
 dead_code:
   stage: dead_code
   script:
-    - pip install vulture
-    - vulture . || true
+    - pip install -e .[dev]
+    - vulture AgriGuard/backend/ --min-confidence 80
   allow_failure: true
 
 # =========================
@@ -59,9 +59,8 @@ dead_code:
 test:
   stage: test
   script:
-    - pip install -e .
-    - pip install pytest pytest-cov
-    - pytest || true
+    - pip install -e .[dev]
+    - pytest --tb=short
   allow_failure: true
 
 # =========================
@@ -70,9 +69,8 @@ test:
 coverage:
   stage: coverage
   script:
-    - pip install -e .
-    - pip install pytest pytest-cov
-    - pytest --cov=. --cov-report=xml || true
+    - pip install -e .[dev]
+    - pytest --cov=AgriGuard.backend --cov-report=xml
   artifacts:
     paths:
       - coverage.xml
@@ -84,9 +82,10 @@ coverage:
 security:
   stage: security
   script:
-    - pip install bandit pip-audit
-    - bandit -r . || true
-    - pip-audit || true
+    - pip install -e .[dev]
+    - bandit -r AgriGuard/backend/ -q
+    - pip-audit --progress-bar off --desc
+    - semgrep --config pyproject.toml --error --quiet || true
   allow_failure: true
 
 # =========================
@@ -96,5 +95,5 @@ compliance:
   stage: compliance
   script:
     - test -f README.md
-    - test -f LICENSE || true
-    - test -f SECURITY.md || true
+    - test -f LICENSE
+    - test -f SECURITY.md

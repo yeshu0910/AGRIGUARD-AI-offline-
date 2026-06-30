@@ -2,3 +2,4 @@
 # CORS wildcard is intentional: the app is fully offline, runs only on localhost.
 # No external network access is possible in production.
 AgriGuard/backend/app.py
+ml_pipeline/

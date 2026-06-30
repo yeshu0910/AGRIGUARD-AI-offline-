@@ -8,7 +8,8 @@ description = "Exclude documentation, tests, and safe examples from blocking loc
 paths = [
   '''(^|/)docs/''',
   '''(^|/)tests/''',
-  '''(^|/)backend/tests/''',
+  '''(^|/)AgriGuard/backend/tests/''',
+  '''(^|/)ml_pipeline/''',
   '''(^|/)examples?/''',
   '''(^|/)sample[s]?/''',
   '''\.example$''',
