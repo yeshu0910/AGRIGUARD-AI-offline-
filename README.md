@@ -250,3 +250,4 @@ GNU Affero General Public License v3.0 or later — see [LICENSE](LICENSE).
 ## Contact
 
 AgriGuard AI Team — [GitLab Repository](mailto:team@example.com)
+# AGRIGUARD-AI-offline-
