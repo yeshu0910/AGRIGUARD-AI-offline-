@@ -1,26 +1,12 @@
 # Python
-venv/
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*.class
+*.so
 .Python
+venv/
 env/
-.env
 .venv
-
-# Node
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# Build outputs
-build/
-dist/
-*.egg-info/
-.eggs/
 
 # IDE
 .vscode/
@@ -32,30 +18,15 @@ dist/
 .DS_Store
 Thumbs.db
 
-# Database
-*.db
-*.sqlite
-*.sqlite3
-
-# Models (large binary files - do not commit)
-models/*.tflite
-models/*.gguf
-models/*.bin
-
-# Frontend build
-frontend/build/
-
-# Test coverage
-htmlcov/
-.coverage
-coverage.xml
-*.cover
-
 # Logs
 *.log
-logs/
+agriguard.log
 
-# Temporary
-tmp/
-temp/
-*.tmp
+# ML Pipeline
+ml_pipeline/models/*.keras
+ml_pipeline/models/classes.json
+ml_pipeline/output/
+ml_pipeline/dataset/
+
+# Jupyter
+.ipynb_checkpoints/
