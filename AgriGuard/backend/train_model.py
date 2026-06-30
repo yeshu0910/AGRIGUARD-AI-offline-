@@ -36,7 +36,6 @@ def get_class_names(data_dir: str) -> list[str]:
 
 
 def normalize_label(name: str) -> str:
-    name = name.replace("__", "___")
     if "___" not in name:
         name = name.replace("_", "___", 1)
     return name
@@ -115,11 +114,13 @@ def main():
         subset="validation",
     )
 
-    data_augmentation = tf.keras.Sequential([
-        layers.RandomFlip("horizontal"),
-        layers.RandomRotation(0.1),
-        layers.RandomZoom(0.1),
-    ])
+    data_augmentation = tf.keras.Sequential(
+        [
+            layers.RandomFlip("horizontal"),
+            layers.RandomRotation(0.1),
+            layers.RandomZoom(0.1),
+        ]
+    )
 
     def augment(image, label):
         image = data_augmentation(image)
@@ -130,9 +131,9 @@ def main():
     val_ds = val_ds.prefetch(AUTOTUNE)
 
     t1 = time.time()
-    print(f"Dataset loaded in {t1-t0:.1f}s")
+    print(f"Dataset loaded in {t1 - t0:.1f}s")
 
-    print(f"\nBuilding model (MobileNetV2 transfer learning)...")
+    print("\nBuilding model (MobileNetV2 transfer learning)...")
     model = build_model(num_classes)
     model.summary()
 
@@ -145,7 +146,7 @@ def main():
         verbose=1,
     )
     t1 = time.time()
-    print(f"Training completed in {t1-t0:.1f}s")
+    print(f"Training completed in {t1 - t0:.1f}s")
 
     val_loss, val_acc = model.evaluate(val_ds, verbose=0)
     print(f"\nValidation accuracy: {val_acc:.4f}")
