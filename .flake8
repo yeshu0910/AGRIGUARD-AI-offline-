@@ -11,3 +11,5 @@ exclude =
 per-file-ignores =
     __init__.py:F401
     tests/*:S101
+    AgriGuard/backend/app.py:E402
+    AgriGuard/backend/train_model.py:E402,F841
