@@ -5,10 +5,11 @@ Orchestrates preprocessing → model inference → crop detection → recommenda
 
 import os
 import time
+
 import numpy as np
 
-from preprocess import preprocess
 from crop_detector import parse_label
+from preprocess import preprocess
 from recommendation import build_report
 
 
@@ -48,17 +49,20 @@ class DiseaseDetector:
 
         labels_path = os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            "models", "labels.txt",
+            "models",
+            "labels.txt",
         )
         if os.path.exists(labels_path):
-            with open(labels_path, "r") as f:
+            with open(labels_path) as f:
                 self.labels = [line.strip() for line in f.readlines() if line.strip()]
 
         self.model_loaded = True
 
     def predict(self, image_path: str, extract_leaf: bool = False) -> dict:
         t0 = time.perf_counter()
-        input_data = preprocess(image_path, target_size=self.input_size, extract_leaf_region=extract_leaf)
+        input_data = preprocess(
+            image_path, target_size=self.input_size, extract_leaf_region=extract_leaf
+        )
         self.interpreter.set_tensor(self.input_details[0]["index"], input_data)
         self.interpreter.invoke()
         output = self.interpreter.get_tensor(self.output_details[0]["index"])
