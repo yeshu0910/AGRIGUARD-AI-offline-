@@ -1,12 +1,13 @@
-import sqlite3
 import csv
 import io
 import json
 import os
-from datetime import datetime
-from typing import Optional
+import sqlite3
+from datetime import datetime, timezone
 
-DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "database", "agriguard.db")
+DB_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "database", "agriguard.db"
+)
 
 
 def _get_connection() -> sqlite3.Connection:
@@ -44,29 +45,32 @@ def init_db() -> None:
 def insert_log(data: dict) -> int:
     conn = _get_connection()
     try:
-        data["timestamp"] = data.get("timestamp", datetime.utcnow().isoformat())
+        data["timestamp"] = data.get("timestamp", datetime.now(timezone.utc).isoformat())
         if isinstance(data.get("recommendation"), list):
             data["recommendation"] = json.dumps(data["recommendation"])
 
-        cursor = conn.execute("""
+        cursor = conn.execute(
+            """
             INSERT INTO DiseaseLogs
                 (timestamp, crop, disease, confidence, severity,
                  affected_area, recommendation, image_path, latitude, longitude)
             VALUES
                 (:timestamp, :crop, :disease, :confidence, :severity,
                  :affected_area, :recommendation, :image_path, :latitude, :longitude)
-        """, {
-            "timestamp": data["timestamp"],
-            "crop": data["crop"],
-            "disease": data["disease"],
-            "confidence": data["confidence"],
-            "severity": data["severity"],
-            "affected_area": data.get("affected_area", ""),
-            "recommendation": data.get("recommendation", "[]"),
-            "image_path": data.get("image_path", ""),
-            "latitude": data.get("latitude"),
-            "longitude": data.get("longitude"),
-        })
+        """,
+            {
+                "timestamp": data["timestamp"],
+                "crop": data["crop"],
+                "disease": data["disease"],
+                "confidence": data["confidence"],
+                "severity": data["severity"],
+                "affected_area": data.get("affected_area", ""),
+                "recommendation": data.get("recommendation", "[]"),
+                "image_path": data.get("image_path", ""),
+                "latitude": data.get("latitude"),
+                "longitude": data.get("longitude"),
+            },
+        )
         conn.commit()
         return cursor.lastrowid
     finally:
@@ -83,7 +87,7 @@ def _row_to_dict(row: sqlite3.Row) -> dict:
     return d
 
 
-def get_all_logs(crop: Optional[str] = None, severity: Optional[str] = None) -> list[dict]:
+def get_all_logs(crop: str | None = None, severity: str | None = None) -> list[dict]:
     conn = _get_connection()
     try:
         query = "SELECT * FROM DiseaseLogs"
@@ -104,7 +108,7 @@ def get_all_logs(crop: Optional[str] = None, severity: Optional[str] = None) -> 
         conn.close()
 
 
-def get_log_by_id(log_id: int) -> Optional[dict]:
+def get_log_by_id(log_id: int) -> dict | None:
     conn = _get_connection()
     try:
         row = conn.execute("SELECT * FROM DiseaseLogs WHERE id = ?", (log_id,)).fetchone()
@@ -128,10 +132,11 @@ def delete_log(log_id: int) -> bool:
 def export_all_as_csv() -> str:
     conn = _get_connection()
     try:
-        rows = conn.execute("SELECT * FROM DiseaseLogs ORDER BY id DESC").fetchall()
+        cursor = conn.execute("SELECT * FROM DiseaseLogs ORDER BY id DESC")
+        rows = cursor.fetchall()
         if not rows:
             return ""
-        col_names = [desc[0] for desc in conn.description]
+        col_names = [desc[0] for desc in cursor.description]
         rec_index = col_names.index("recommendation") if "recommendation" in col_names else -1
         output = io.StringIO()
         writer = csv.writer(output)
@@ -139,9 +144,7 @@ def export_all_as_csv() -> str:
         for row in rows:
             cleaned = []
             for i, v in enumerate(row):
-                if i == rec_index and isinstance(v, str):
-                    cleaned.append(v)
-                elif isinstance(v, str):
+                if (i == rec_index and isinstance(v, str)) or isinstance(v, str):
                     cleaned.append(v)
                 elif v is None:
                     cleaned.append("")
