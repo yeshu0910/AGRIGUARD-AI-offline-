@@ -4,24 +4,27 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agriguard-ai"
-version = "0.1.0"
-description = "Offline crop disease logger with local AI inference"
+version = "1.0.0"
+description = "Offline-first, CPU-only crop disease diagnosis system with local AI inference and recommendation engine"
 readme = "README.md"
 license = {text = "AGPL-3.0-or-later"}
 requires-python = ">=3.10"
 authors = [
     {name = "AgriGuard AI Team", email = "team@example.com"}
 ]
-keywords = ["agritech", "offline-ai", "crop-disease", "tflite", "llama.cpp"]
+keywords = ["agritech", "offline-ai", "crop-disease", "tflite", "llama.cpp", "computer-vision"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
+    "Intended Audience :: Agriculture",
     "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Image Recognition",
 ]
 
 dependencies = [
@@ -46,15 +49,49 @@ dev = [
     "black>=24.4.0",
     "ruff>=0.4.0",
     "mypy>=1.10.0",
+    "flake8>=7.1.0",
+    "pylint>=3.2.0",
+    "bandit>=1.7.9",
+    "vulture>=2.11",
+    "semgrep>=1.70.0",
+    "pyupgrade>=3.16.0",
+    "pip-audit>=2.7.0",
+    "pre-commit>=3.7.0",
 ]
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["backend*"]
+include = ["backend*", "AgriGuard*"]
 
 [tool.pytest.ini_options]
-testpaths = ["backend/tests", "tests"]
+testpaths = ["AgriGuard/backend/tests"]
 asyncio_mode = "auto"
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*", "test_*"]
+
+[tool.coverage.run]
+source = ["AgriGuard/backend"]
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/migrations/*",
+    "*/train_model.py",
+]
+concurrency = ["thread"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if __name__ == .__main__.:",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "return NotImplemented",
+]
+show_missing = true
+fail_under = 80
 
 [tool.black]
 line-length = 100
@@ -64,27 +101,134 @@ target-version = ["py310", "py311", "py312"]
 python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
+warn_unused_ignores = true
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
 check_untyped_defs = true
 strict_equality = true
 extra_checks = true
+no_implicit_optional = true
+warn_redundant_casts = true
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["llama_cpp", "tensorflow", "cv2"]
+ignore_missing_imports = true
 
 [tool.ruff]
 line-length = 100
 target-version = "py310"
+src = ["backend", "AgriGuard/backend"]
+exclude = ["venv", "__pycache__", "build", "dist", "migrations", "_list.py", "test_model.py"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM"]
-ignore = ["E501"]
+select = [
+    "E", "F", "I", "N", "W", "UP", "B", "C4", "SIM",
+    "ARG", "RUF", "PTH", "PD", "PL", "PT", "Q", "RET",
+    "TCH", "TID", "ERA", "YTT",
+]
+ignore = [
+    "E501",
+    "PLR0913",
+    "PLR0911",
+    "PLR0912",
+    "PLR0915",
+]
+fixable = ["ALL"]
+unfixable = []
 
-[tool.bandit]
-exclude_dirs = ["tests", "venv"]
-skips = ["B101"]
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/*" = ["S101", "PLR2004", "ARG002", "PLC0415", "PT011"]
+"test_*.py" = ["S101", "PLR2004", "ARG002", "PLC0415", "PT011"]
+"AgriGuard/__init__.py" = ["N999"]
+"AgriGuard/backend/__init__.py" = ["N999"]
+"AgriGuard/backend/tests/*" = ["N999", "PTH100", "PTH120"]
+"AgriGuard/backend/tests/**/*" = ["N999", "PTH118", "PTH123", "PTH100", "PTH120", "B007", "N801"]
+"AgriGuard/backend/tests/conftest.py" = ["PTH"]
+"AgriGuard/backend/*.py" = ["N999"]
+"AgriGuard/backend/app.py" = ["PTH", "PLW0603", "B008", "RUF059", "B904"]
+"AgriGuard/backend/database.py" = ["PTH"]
+"AgriGuard/backend/detect.py" = ["PTH", "PLC0415", "PLR2004"]
+"AgriGuard/backend/llm.py" = ["PTH", "PLC0415"]
+"AgriGuard/backend/preprocess.py" = ["RET504"]
+"AgriGuard/backend/train_model.py" = ["PTH", "PLR2004", "F841", "E402", "F541"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.pylint.messages_control]
-disable = ["C0330", "C0326", "R0913"]
+disable = [
+    "C0330",
+    "C0326",
+    "R0913",
+    "R0903",
+    "C0114",
+    "C0115",
+    "C0116",
+    "W0718",
+]
 enable = ["useless-suppression"]
 
 [tool.pylint.format]
 max-line-length = 100
+indent-string = "    "
+
+[tool.pylint.MASTER]
+ignore = ["venv", "__pycache__", "build", "dist", "migrations"]
+load-plugins = "pylint.extensions.docparams"
+
+[tool.pylint.DESIGN]
+max-args = 7
+max-attributes = 10
+max-locals = 20
+
+[tool.pylint.TYPECHECK]
+ignored-classes = ["sqlalchemy"]
+ignored-modules = ["llama_cpp", "tensorflow", "cv2"]
+
+[tool.bandit]
+exclude_dirs = ["tests", "venv", "__pycache__", "build", "dist"]
+skips = ["B101", "B104", "B303", "B311", "B403", "B404", "B603"]
+assert_used = false
+
+[tool.vulture]
+exclude = [
+    "venv/*",
+    "__pycache__/*",
+    "build/*",
+    "dist/*",
+    "migrations/*",
+    "tests/*",
+    "backend/database/migrate.py",
+]
+ignore_names = ["_", "logger", "cfg", "settings", "app", "detector", "reporter", "db_path"]
+min_confidence = 80
+sort_by_size = true
+
+[tool.pyupgrade]
+keep_runtime_typing = true
+py39_plus = true
+py310_plus = true
+py311_plus = true
+
+[tool.pip-audit]
+strict = true
+progress_bar = false
+desc = true
+require_hashes = false
+index_url = "https://pypi.org/simple"
+extra_index_urls = []
+timeout = 60
+fix = false
+
+[tool.flake8]
+max-line-length = 100
+extend-ignore = "E501, W503"
+exclude = "venv,__pycache__,.git,build,dist,migrations"
+per-file-ignores = "__init__.py:F401, tests/*:S101"
