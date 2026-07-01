@@ -39,14 +39,19 @@ reporter: ReportGenerator | None = None
 def get_detector() -> DiseaseDetector:
     global detector
     if detector is None:
-        detector = DiseaseDetector(model_path=os.path.join("models", "disease_model.tflite"))
+        detector = DiseaseDetector(
+            model_path=os.environ.get("MODEL_PATH", os.path.join("models", "disease_model.tflite")),
+            labels_path=os.environ.get("LABELS_PATH", os.path.join("models", "labels.txt")),
+        )
     return detector
 
 
 def get_reporter() -> ReportGenerator:
     global reporter
     if reporter is None:
-        reporter = ReportGenerator(model_path=os.path.join("models", "phi3.gguf"))
+        reporter = ReportGenerator(
+            model_path=os.environ.get("LLM_MODEL_PATH", os.path.join("models", "phi3.gguf"))
+        )
     return reporter
 
 
@@ -63,7 +68,7 @@ async def root() -> FileResponse:
 @app.get("/health")
 async def health() -> dict:
     model_ok = False
-    model_path = os.path.join(BASE_DIR, "models", "disease_model.tflite")
+    model_path = os.environ.get("MODEL_PATH", os.path.join(BASE_DIR, "models", "disease_model.tflite"))
     if os.path.exists(model_path):
         try:
             get_detector()
@@ -71,7 +76,7 @@ async def health() -> dict:
         except Exception:
             model_ok = False
 
-    llm_path = os.path.join(BASE_DIR, "models", "phi3.gguf")
+    llm_path = os.environ.get("LLM_MODEL_PATH", os.path.join(BASE_DIR, "models", "phi3.gguf"))
     llm_ok = os.path.exists(llm_path)
 
     db_ok = os.path.exists(os.path.join(BASE_DIR, "database", "agriguard.db"))

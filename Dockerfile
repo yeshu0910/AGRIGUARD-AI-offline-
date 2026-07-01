@@ -29,9 +29,9 @@ RUN pip install --no-cache-dir --upgrade pip \
 COPY . .
 
 # =========================
-# Create required runtime folders (safe fallback)
+# Create required runtime folders
 # =========================
-RUN mkdir -p /app/database /app/models /app/tmp
+RUN mkdir -p /app/AgriGuard/database /app/AgriGuard/models /app/AgriGuard/images /app/AgriGuard/tmp
 
 # =========================
 # Environment settings

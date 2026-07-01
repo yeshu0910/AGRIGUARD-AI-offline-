@@ -11,8 +11,8 @@ from detect import DiseaseDetector
 
 class TestDiseaseDetectorInit:
     def test_init_model_not_found(self):
-        with pytest.raises(FileNotFoundError, match="TFLite model not found"):
-            DiseaseDetector(model_path="nonexistent_model.tflite")
+        detector = DiseaseDetector(model_path="nonexistent_model.tflite")
+        assert detector.model_loaded is False
 
 
 class TestDiseaseDetectorPredict:

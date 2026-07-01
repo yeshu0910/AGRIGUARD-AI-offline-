@@ -14,8 +14,9 @@ from recommendation import build_report
 
 
 class DiseaseDetector:
-    def __init__(self, model_path: str = "models/disease_model.tflite") -> None:
-        self.model_path = model_path
+    def __init__(self, model_path: str | None = None, labels_path: str | None = None) -> None:
+        self.model_path = model_path or os.environ.get("MODEL_PATH", "models/disease_model.tflite")
+        self.labels_path = labels_path or os.environ.get("LABELS_PATH", "models/labels.txt")
         self.interpreter = None
         self.input_details = None
         self.output_details = None
@@ -47,8 +48,7 @@ class DiseaseDetector:
 
         labels_path = os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            "models",
-            "labels.txt",
+            self.labels_path,
         )
         if os.path.exists(labels_path):
             with open(labels_path) as f:

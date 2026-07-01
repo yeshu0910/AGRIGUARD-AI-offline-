@@ -64,8 +64,8 @@ def _find_fallback(disease: str) -> dict | None:
 
 
 class ReportGenerator:
-    def __init__(self, model_path: str = "models/phi3.gguf") -> None:
-        self.model_path = model_path
+    def __init__(self, model_path: str | None = None) -> None:
+        self.model_path = model_path or os.environ.get("LLM_MODEL_PATH", "models/phi3.gguf")
         self.llm = None
         self._load_model()
 
