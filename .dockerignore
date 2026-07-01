@@ -51,7 +51,6 @@ Desktop.ini
 *.sqlite3
 
 # Models (large binaries - mount at runtime)
-models/*.tflite
 models/*.gguf
 models/*.bin
 models/*.h5
