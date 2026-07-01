@@ -90,7 +90,7 @@ coverage:
     - python -m pip install --upgrade pip setuptools wheel
   script:
     - pip install -e .[dev]
-    - pytest --cov=AgriGuard.backend --cov-report=xml
+    - pytest --cov --cov-report=xml
   artifacts:
     paths:
       - coverage.xml
