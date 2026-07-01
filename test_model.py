@@ -26,11 +26,23 @@ CLASS_DIRS = [
     "Tomato__Tomato_YellowLeaf__Curl_Virus",
 ]
 
-def normalize_label(name: str) -> str:
-    name = name.replace("__", "___")
-    if "___" not in name:
-        name = name.replace("_", "___", 1)
-    return name
+LABEL_MAP = {
+    "Pepper__bell___Bacterial_spot": "Pepper___Bacterial_spot",
+    "Pepper__bell___healthy": "Pepper___Healthy",
+    "Potato___Early_blight": "Potato___Early_blight",
+    "Potato___healthy": "Potato___Healthy",
+    "Potato___Late_blight": "Potato___Late_blight",
+    "Tomato_Bacterial_spot": "Tomato___Bacterial_spot",
+    "Tomato_Early_blight": "Tomato___Early_blight",
+    "Tomato_healthy": "Tomato___Healthy",
+    "Tomato_Late_blight": "Tomato___Late_blight",
+    "Tomato_Leaf_Mold": "Tomato___Leaf_mold",
+    "Tomato_Septoria_leaf_spot": "Tomato___Septoria_leaf_spot",
+    "Tomato_Spider_mites_Two_spotted_spider_mite": "Tomato___Spider_mites",
+    "Tomato__Target_Spot": "Tomato___Target_spot",
+    "Tomato__Tomato_mosaic_virus": "Tomato___Mosaic_virus",
+    "Tomato__Tomato_YellowLeaf__Curl_Virus": "Tomato___Yellow_leaf_curl_virus",
+}
 
 def get_test_images(dataset_root, class_dirs, samples_per_class=5):
     images = []
@@ -40,7 +52,8 @@ def get_test_images(dataset_root, class_dirs, samples_per_class=5):
             continue
         files = [f for f in os.listdir(class_path) if f.lower().endswith((".jpg", ".jpeg", ".png"))]
         for f in files[:samples_per_class]:
-            images.append((os.path.join(class_path, f), normalize_label(d)))
+            label = LABEL_MAP.get(d, d)
+            images.append((os.path.join(class_path, f), label))
     return images
 
 def main():
