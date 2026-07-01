@@ -68,7 +68,9 @@ async def root() -> FileResponse:
 @app.get("/health")
 async def health() -> dict:
     model_ok = False
-    model_path = os.environ.get("MODEL_PATH", os.path.join(BASE_DIR, "models", "disease_model.tflite"))
+    model_path = os.environ.get(
+        "MODEL_PATH", os.path.join(BASE_DIR, "models", "disease_model.tflite")
+    )
     if os.path.exists(model_path):
         try:
             get_detector()
