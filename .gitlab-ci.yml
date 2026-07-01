@@ -70,6 +70,9 @@ dead_code:
 test:
   stage: test
   interruptible: true
+  before_script:
+    - apt-get update && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 && rm -rf /var/lib/apt/lists/*
+    - python -m pip install --upgrade pip setuptools wheel
   script:
     - pip install -e .
     - pip install pytest pytest-cov httpx
@@ -82,6 +85,9 @@ test:
 coverage:
   stage: coverage
   interruptible: true
+  before_script:
+    - apt-get update && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 && rm -rf /var/lib/apt/lists/*
+    - python -m pip install --upgrade pip setuptools wheel
   script:
     - pip install -e .[dev]
     - pytest --cov=AgriGuard.backend --cov-report=xml
@@ -98,7 +104,7 @@ security:
   interruptible: true
   script:
     - pip install -e .[dev]
-    - bandit -r AgriGuard/backend/ -q
+    - bandit -r AgriGuard/backend/ -q --exclude AgriGuard/backend/tests
     - semgrep --config pyproject.toml --error --quiet || true
   allow_failure: true
 

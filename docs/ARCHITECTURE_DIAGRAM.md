@@ -92,7 +92,7 @@
 - Max size: 10 MB.
 
 ### 2. OpenCV Preprocessor
-- Library: `opencv-python`.
+- Library: `opencv-python-headless`.
 - Operations:
   - `cv2.imdecode` to read bytes into `BGR` matrix.
   - `cv2.resize` with `INTER_AREA` to 224×224 or 320×320.

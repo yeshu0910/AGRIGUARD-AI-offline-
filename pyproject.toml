@@ -32,7 +32,7 @@ dependencies = [
     "uvicorn[standard]>=0.30.0",
     "pydantic>=2.7.0",
     "sqlalchemy>=2.0.0",
-    "opencv-python>=4.9.0",
+    "opencv-python-headless>=4.9.0",
     "numpy>=1.26.0",
     "tensorflow>=2.15.0",
     "python-multipart>=0.0.9",
@@ -194,7 +194,6 @@ ignored-modules = ["llama_cpp", "tensorflow", "cv2"]
 [tool.bandit]
 exclude_dirs = ["tests", "venv", "__pycache__", "build", "dist"]
 skips = ["B101", "B104", "B303", "B311", "B403", "B404", "B603"]
-assert_used = false
 
 [tool.vulture]
 exclude = [
