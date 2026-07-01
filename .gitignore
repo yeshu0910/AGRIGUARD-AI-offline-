@@ -22,13 +22,10 @@ yarn-error.log*
 pnpm-debug.log*
 
 # Build artifacts and models
-*.tflite
 *.h5
 *.onnx
 *.gguf
 *.bin
-AgriGuard/models/
-models/
 ml_pipeline/models/*.keras
 ml_pipeline/models/classes.json
 

@@ -26,18 +26,24 @@ class DiseaseDetector:
         self._load_model()
 
     def _load_model(self) -> None:
-        resolved = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))), self.model_path
-        )
+        BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+        resolved = os.path.join(BASE_DIR, self.model_path)
+
+        print(f"[detect] Trying to load model from: {resolved}")
+
         if not os.path.exists(resolved):
             print(f"[detect] Model not found at {resolved}. Detection will fail with 503.")
             return
+
         try:
             import tensorflow.lite as tflite
         except ImportError:
             import tflite_runtime.interpreter as tflite
+
         self.interpreter = tflite.Interpreter(model_path=resolved)
         self.interpreter.allocate_tensors()
+
         self.input_details = self.interpreter.get_input_details()
         self.output_details = self.interpreter.get_output_details()
 
@@ -46,10 +52,8 @@ class DiseaseDetector:
             _, h, w, _ = input_shape
             self.input_size = (w, h)
 
-        labels_path = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            self.labels_path,
-        )
+        labels_path = os.path.join(BASE_DIR, self.labels_path)
+
         if os.path.exists(labels_path):
             with open(labels_path) as f:
                 self.labels = [line.strip() for line in f.readlines() if line.strip()]
