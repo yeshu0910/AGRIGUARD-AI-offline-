@@ -26,9 +26,9 @@ class DiseaseDetector:
         self._load_model()
 
     def _load_model(self) -> None:
-        BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
-        resolved = os.path.join(BASE_DIR, self.model_path)
+        resolved = os.path.join(base_dir, self.model_path)
 
         print(f"[detect] Trying to load model from: {resolved}")
 
@@ -52,11 +52,20 @@ class DiseaseDetector:
             _, h, w, _ = input_shape
             self.input_size = (w, h)
 
-        labels_path = os.path.join(BASE_DIR, self.labels_path)
+        labels_path = os.path.join(base_dir, self.labels_path)
 
         if os.path.exists(labels_path):
             with open(labels_path) as f:
                 self.labels = [line.strip() for line in f.readlines() if line.strip()]
+
+        output_shape = self.output_details[0]["shape"]
+        num_outputs = output_shape[1] if len(output_shape) > 1 else output_shape[0]
+        if self.labels and num_outputs != len(self.labels):
+            print(
+                f"[detect] WARNING: Model has {num_outputs} classes "
+                f"but labels has {len(self.labels)} entries. "
+                "Predictions will use wrong labels."
+            )
 
         self.model_loaded = True
 

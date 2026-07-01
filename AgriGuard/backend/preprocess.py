@@ -31,7 +31,7 @@ def resize_image(img: np.ndarray, target_size: tuple[int, int]) -> np.ndarray:
 
 
 def normalize_image(img: np.ndarray) -> np.ndarray:
-    return img.astype(np.float32)
+    return img.astype(np.float32) / 255.0
 
 
 def preprocess(

@@ -194,7 +194,227 @@ def _seed_knowledge():
         },
     }
 
+    extra_crops: dict[tuple[str, str], dict] = {
+        ("Apple", "Apple scab"): {
+            "severity": "Medium",
+            "affected_area": "Leaves and fruit",
+            "chemical": "Mancozeb or captan fungicide (2g/L water) at pink bud stage",
+            "organic": "Sulfur spray or Bordeaux mixture before infection period",
+            "prevention": [
+                "Remove fallen leaves in autumn to reduce inoculum",
+                "Prune for good air circulation",
+                "Apply preventive fungicides during wet springs",
+                "Plant resistant varieties when possible",
+            ],
+        },
+        ("Apple", "Black rot"): {
+            "severity": "Medium",
+            "affected_area": "Fruit, leaves, and branches",
+            "chemical": "Thiophanate-methyl or captan fungicide",
+            "organic": "Remove and destroy infected fruit and cankers",
+            "prevention": [
+                "Prune out cankered branches in dry weather",
+                "Remove mummified fruit from trees",
+                "Avoid wounding trees during cultivation",
+                "Apply copper sprays during dormancy",
+            ],
+        },
+        ("Apple", "Cedar apple rust"): {
+            "severity": "Low",
+            "affected_area": "Leaves and fruit",
+            "chemical": "Myclobutanil or mancozeb every 7-10 days during spring",
+            "organic": "Remove nearby cedar/juniper hosts if possible",
+            "prevention": [
+                "Remove cedar trees within 1 km of orchard",
+                "Plant resistant apple varieties",
+                "Apply preventive fungicides from pink bud to petal fall",
+                "Monitor for orange spots on leaves in spring",
+            ],
+        },
+        ("Apple", "healthy"): {
+            "severity": "None",
+            "affected_area": "None",
+            "chemical": "None required",
+            "organic": "Continue balanced organic orchard care",
+            "prevention": [
+                "Continue current care practices",
+                "Prune annually for structure and airflow",
+                "Apply dormant oil in late winter",
+                "Monitor weekly for pests and diseases",
+            ],
+        },
+        ("Cucumber", "Downy mildew"): {
+            "severity": "High",
+            "affected_area": "Leaves — angular yellow lesions on upper surface",
+            "chemical": "Chlorothalonil or mancozeb (2g/L) at first sign; metalaxyl-based fungicides",
+            "organic": "Copper fungicide spray; apply Bacillus subtilis biofungicide",
+            "prevention": [
+                "Use resistant varieties where available",
+                "Avoid overhead irrigation; water at soil level",
+                "Ensure proper plant spacing for air circulation",
+                "Rotate out of cucurbit crops for 2 years",
+            ],
+        },
+        ("Cucumber", "Powdery mildew"): {
+            "severity": "Medium",
+            "affected_area": "Upper leaf surfaces — white powdery coating",
+            "chemical": "Sulfur-based fungicide (3g/L) or myclobutanil every 7-14 days",
+            "organic": "Baking soda solution (1 tsp/L water with few drops of soap) weekly",
+            "prevention": [
+                "Plant in full sun with good air flow",
+                "Avoid high nitrogen fertilizers",
+                "Use resistant varieties",
+                "Apply neem oil weekly as preventive",
+            ],
+        },
+        ("Cucumber", "healthy"): {
+            "severity": "None",
+            "affected_area": "None",
+            "chemical": "None required",
+            "organic": "Continue regular organic care routine",
+            "prevention": [
+                "Continue current care practices",
+                "Water at base to keep leaves dry",
+                "Apply compost tea monthly",
+                "Monitor for cucurbit pests weekly",
+            ],
+        },
+        ("Pumpkin", "Downy mildew"): {
+            "severity": "High",
+            "affected_area": "Leaves — yellow angular lesions",
+            "chemical": "Chlorothalonil or mancozeb (2g/L) at first sign; metalaxyl + mancozeb",
+            "organic": "Copper fungicide spray; neem oil (5ml/L) as preventive",
+            "prevention": [
+                "Use resistant pumpkin varieties",
+                "Avoid overhead watering in the evening",
+                "Space plants 3-4 feet apart for airflow",
+                "Rotate with non-cucurbit crops for 2-3 years",
+            ],
+        },
+        ("Pumpkin", "Powdery mildew"): {
+            "severity": "Medium",
+            "affected_area": "Leaves — white powdery coating",
+            "chemical": "Sulfur-based fungicide (3g/L) or trifloxystrobin every 7-14 days",
+            "organic": "Milk spray (1 part milk to 9 parts water) weekly; neem oil",
+            "prevention": [
+                "Plant in full sun with adequate spacing",
+                "Avoid excessive nitrogen fertilizer",
+                "Remove and destroy infected leaves immediately",
+                "Apply sulfur dust preventively in humid conditions",
+            ],
+        },
+        ("Pumpkin", "healthy"): {
+            "severity": "None",
+            "affected_area": "None",
+            "chemical": "None required",
+            "organic": "Continue regular organic care routine",
+            "prevention": [
+                "Continue current care practices",
+                "Water at soil level to keep foliage dry",
+                "Apply balanced organic fertilizer monthly",
+                "Monitor for vine borers and cucumber beetles",
+            ],
+        },
+        ("Rice", "Blast"): {
+            "severity": "High",
+            "affected_area": "Leaves, nodes, panicles — diamond-shaped lesions",
+            "chemical": "Tricyclazole (0.6g/L) or carbendazim at booting stage",
+            "organic": "Use silicon-rich amendments (rice hull ash) to strengthen cell walls",
+            "prevention": [
+                "Plant resistant varieties",
+                "Avoid excessive nitrogen fertilization",
+                "Maintain proper water management",
+                "Remove crop debris after harvest",
+            ],
+        },
+        ("Rice", "Brown spot"): {
+            "severity": "Medium",
+            "affected_area": "Leaves and grains",
+            "chemical": "Mancozeb or edifenphos at booting stage",
+            "organic": "Apply neem cake as soil amendment; spray neem oil",
+            "prevention": [
+                "Use certified disease-free seeds",
+                "Maintain balanced soil nutrition (avoid zinc deficiency)",
+                "Practice crop rotation",
+                "Remove weed hosts from field margins",
+            ],
+        },
+        ("Rice", "Tungro"): {
+            "severity": "High",
+            "affected_area": "Entire plant — stunting, yellow-orange discoloration",
+            "chemical": "No chemical cure; control leafhopper vectors with imidacloprid",
+            "organic": "Reflective mulch to repel leafhoppers; neem oil spray",
+            "prevention": [
+                "Plant resistant or tolerant varieties",
+                "Control leafhopper populations early",
+                "Stagger planting dates to reduce vector buildup",
+                "Remove infected plants and weeds",
+            ],
+        },
+        ("Rice", "healthy"): {
+            "severity": "None",
+            "affected_area": "None",
+            "chemical": "None required",
+            "organic": "Continue regular organic care routine",
+            "prevention": [
+                "Continue current care practices",
+                "Maintain proper water depth",
+                "Apply compost or green manure before planting",
+                "Monitor for pests and diseases weekly",
+            ],
+        },
+        ("Wheat", "Brown rust"): {
+            "severity": "Medium",
+            "affected_area": "Leaves — orange-brown pustules",
+            "chemical": "Propiconazole or tebuconazole (1ml/L) at first sign",
+            "organic": "Sulfur spray; apply neem oil weekly",
+            "prevention": [
+                "Plant resistant varieties",
+                "Avoid early planting in rust-prone areas",
+                "Reduce plant density for airflow",
+                "Remove volunteer wheat plants",
+            ],
+        },
+        ("Wheat", "Septoria"): {
+            "severity": "Medium",
+            "affected_area": "Leaves — irregular gray-brown lesions with dark spots",
+            "chemical": "Azoxystrobin or chlorothalonil fungicide at flag leaf stage",
+            "organic": "Copper fungicide spray; practice strict crop rotation",
+            "prevention": [
+                "Use certified disease-free seed",
+                "Rotate with non-cereal crops for 2 years",
+                "Plow under crop residue after harvest",
+                "Avoid dense planting",
+            ],
+        },
+        ("Wheat", "Yellow rust"): {
+            "severity": "High",
+            "affected_area": "Leaves — yellow-orange pustules in stripes",
+            "chemical": "Tebuconazole or propiconazole (1ml/L) at first sign",
+            "organic": "Sulfur-based fungicide; remove volunteer wheat",
+            "prevention": [
+                "Plant yellow rust-resistant varieties",
+                "Avoid excessive nitrogen fertilizer",
+                "Monitor regularly during cool wet springs",
+                "Apply preventive fungicide at stem elongation if history of rust",
+            ],
+        },
+        ("Wheat", "healthy"): {
+            "severity": "None",
+            "affected_area": "None",
+            "chemical": "None required",
+            "organic": "Continue regular organic care routine",
+            "prevention": [
+                "Continue current care practices",
+                "Use certified seed each season",
+                "Balance nitrogen fertilization to prevent lodging",
+                "Monitor weekly for pests and diseases",
+            ],
+        },
+    }
+
     KNOWLEDGE_BASE.update(crop_map)
+    KNOWLEDGE_BASE.update(extra_crops)
 
 
 def get_recommendation(crop: str, disease: str) -> dict:
